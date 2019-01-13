@@ -1,6 +1,8 @@
 import pyrealsense2 as rs
 from networktables import NetworkTables
 
+#NetworkTables.initialize(server='10.6.68.2')
+
 try:
     # Create a context object. This object owns the handles to all connected realsense devices
     pipeline = rs.pipeline()
@@ -16,6 +18,8 @@ try:
         break
     dist = depth.get_distance(640, 360)
     print(dist)
+    table = NetworkTables.getTable('SmartDashboard')
+    table.putNumber('depth', dist)
     exit(0)
 #except rs.error as e:
 #    # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
