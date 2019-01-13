@@ -47,11 +47,19 @@ while 1:
 		areas = [cv2.contourArea(c) for c in contour_data]
 		max_index = numpy.argmax(areas)
 		cnt = contour_data[max_index]
-		x, y, w, h = cv2.boundingRect(cnt) 
-		cv2.rectangle(img, (x, y), (x + w, y + h), (100, 50, 50), 5)
 		
-		cx = (2 * x + w) / 2
-		cy = (2 * y + h) / 2
+		rect = cv2.minAreaRect(cnt)
+		box = cv2.boxPoints(rect)
+		box = numpy.int0(box)
+		cv2.drawContours(img,[box], 0, (100, 50, 50), 10)
+		
+		top_right = box[0]
+		top_left = box[1]
+		bottom_left = box[2]
+		bottom_right = box[3]
+		
+		cx = (top_left[0] + top_right[0] + bottom_right[0] + bottom_left[0]) / 4
+		cy = (top_left[1] + top_right[1] + bottom_right[1] + bottom_left[1]) / 4
 		print ("Approx Angle: " + str(approximateAngle(cx, cy)))
 		print ("Actual Angle: " + str(actualAngle(cx, cy)))
 		
