@@ -1,4 +1,7 @@
 import pyrealsense2 as rs
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
 from networktables import NetworkTables
 
 #NetworkTables.initialize(server='10.6.68.2')
@@ -13,11 +16,18 @@ try:
     while True:
         frames = pipeline.wait_for_frames()
         depth = frames.get_depth_frame()
+        color = frames.get_color_frame()
+        pipeline.stop()
         if not depth:
             continue
         break
     dist = depth.get_distance(640, 360)
     print(dist)
+    rgb = np.asanyarray(color.get_data())
+    plt.rcParams["axes.grid"] = False
+    plt.rcParams['figure.figsize'] = [12, 6]
+    while True:
+        plt.imshow(rgb)
     table = NetworkTables.getTable('SmartDashboard')
     table.putNumber('depth', dist)
     exit(0)
