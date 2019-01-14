@@ -4,7 +4,7 @@ import grip, cv2, numpy
 import time
 import math
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 pipe = grip.GreenProfile()
 
 WIDTH = 1920.0
@@ -28,13 +28,32 @@ if not cap.isOpened():
 
 def approximateAngle(x, y):
 	horizantal_conversion = H_FOV / WIDTH
-	return (cx - WIDTH / 2) * horizantal_conversion
+	return (x - WIDTH / 2) * horizantal_conversion
 
 def actualAngle(x, y):
 	# math.degrees(atan(o/a))
 	print("X: " + str(x))
 	pixel_width_percentage = (x - WIDTH / 2) / (WIDTH / 2)
 	return math.degrees(math.atan(pixel_width_percentage * SENSOR_WIDTH / F_LENGTH))
+
+def getCenters(box):
+	top_right = box[0]
+	top_left = box[1]
+	bottom_left = box[2]
+	bottom_right = box[3]
+
+	cx = (top_left[0] + top_right[0] + bottom_right[0] + bottom_left[0]) / 4
+	cy = (top_left[1] + top_right[1] + bottom_right[1] + bottom_left[1]) / 4
+	return cx, cy
+
+def calcAngles(box1 ,box2):
+	cx1, cy1 = getCenters(box1)
+	cx2, cy2  = getCenters(box2)
+	cx = (cx1 + cx2) / 2
+	cy = (cy1 + cy2) / 2
+	
+	print ("Approx Angle: " + str(approximateAngle(cx, cy)))
+	print ("Actual Angle: " + str(actualAngle(cx, cy)))
 
 while 1:
 	ret, im = cap.read()
@@ -43,26 +62,27 @@ while 1:
 	contour_data = pipe.find_contours_output
 	
 	# For actual implementation, draw the rectangles with the 2 biggest areas instead of the single one
-	if len(contour_data) > 0:
+	if len(contour_data) >= 2:
 		areas = [cv2.contourArea(c) for c in contour_data]
 		max_index = numpy.argmax(areas)
-		cnt = contour_data[max_index]
 		
-		rect = cv2.minAreaRect(cnt)
-		box = cv2.boxPoints(rect)
-		box = numpy.int0(box)
-		cv2.drawContours(img,[box], 0, (100, 50, 50), 10)
+
+		first_rect = contour_data[max_index]
+		areas.pop(max_index)
+		max_index = numpy.argmax(areas)
+		second_rect = contour_data[max_index]
 		
-		top_right = box[0]
-		top_left = box[1]
-		bottom_left = box[2]
-		bottom_right = box[3]
+		rect = cv2.minAreaRect(first_rect)
+		box1 = cv2.boxPoints(rect)
+		box1 = numpy.int0(box1)
+		cv2.drawContours(img,[box1], 0, (100, 50, 50), 10)
 		
-		cx = (top_left[0] + top_right[0] + bottom_right[0] + bottom_left[0]) / 4
-		cy = (top_left[1] + top_right[1] + bottom_right[1] + bottom_left[1]) / 4
-		print ("Approx Angle: " + str(approximateAngle(cx, cy)))
-		print ("Actual Angle: " + str(actualAngle(cx, cy)))
+		rect = cv2.minAreaRect(second_rect)
+		box2 = cv2.boxPoints(rect)
+		box2 = numpy.int0(box2)
+		cv2.drawContours(img,[box2], 0, (100, 50, 50), 10)
 		
+		calcAngles(box1, box2)
 
 	cv2.imshow("CONTOUR",  img)
 	time.sleep(1/30)
