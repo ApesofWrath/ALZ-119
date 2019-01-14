@@ -23,4 +23,5 @@ with cond:
 print("Connected!")
 
 table = NetworkTables.getTable('SmartDashboard')
-table.putNumber('X', 8)
+while True:
+    table.putNumber('X', 8)
