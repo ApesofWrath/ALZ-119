@@ -21,3 +21,6 @@ with cond:
 
 # Insert your processing code here
 print("Connected!")
+
+table = NetworkTables.getTable('SmartDashboard')
+table.putNumber('X', 8)
