@@ -11,7 +11,7 @@ def connectionListener(connected, info):
         cond.notify()
 
 NetworkTables.startClientTeam(668)
-NetworkTables.initialize(server='10.6.68.2')
+NetworkTables.initialize(server='10.6.68.2') #roborio must be on this static ip
 NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
 
 with cond:
@@ -23,5 +23,5 @@ with cond:
 print("Connected!")
 
 table = NetworkTables.getTable('SmartDashboard')
-while True:
-    table.putNumber('X', 8)
+while True: #not like smartdashboard where put() will keep show the variable forever
+    table.putNumber('X', 9)

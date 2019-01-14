@@ -1,7 +1,28 @@
 import pyrealsense2 as rs
 from networktables import NetworkTables
+import threading
 
-#NetworkTables.initialize(server='10.6.68.2')
+#network tables setup
+cond = threading.Condition()
+notified = [False]
+
+def connectionListener(connected, info):
+    print(info, '; Connected=%s' % connected)
+    with cond:
+        notified[0] = True
+        cond.notify()
+
+NetworkTables.startClientTeam(668)
+NetworkTables.initialize(server='10.6.68.2') #roborio must be on this static ip
+NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
+
+with cond:
+    print("Waiting")
+    if not notified[0]:
+        cond.wait()
+
+print("Connected!")
+table = NetworkTables.getTable('SmartDashboard')
 
 try:
     # Create a context object. This object owns the handles to all connected realsense devices
@@ -15,11 +36,12 @@ try:
         depth = frames.get_depth_frame()
         if not depth:
             continue
-        break
-    dist = depth.get_distance(640, 360)
-    print(dist)
-    table = NetworkTables.getTable('SmartDashboard')
-    table.putNumber('depth', dist)
+#        break
+#    while True:
+        dist = depth.get_distance(640, 360)
+        print(dist)
+        table = NetworkTables.getTable('SmartDashboard')
+        table.putNumber('depth', dist)
     exit(0)
 #except rs.error as e:
 #    # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
