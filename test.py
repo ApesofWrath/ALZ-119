@@ -4,7 +4,7 @@ import grip, cv2, numpy
 import time
 import math
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 pipe = grip.GreenProfile()
 
 WIDTH = 1920.0
@@ -41,6 +41,7 @@ def getCenters(box):
 	top_left = box[1]
 	bottom_left = box[2]
 	bottom_right = box[3]
+	#print ("TOP_LEFT: " + str(top_left) + "TOP RIGHT: " + str(top_right) + " BOTTOM_RIGHT: " + str(bottom_right) + " BOTTOM_LEFT: " + str(bottom_left))
 
 	cx = (top_left[0] + top_right[0] + bottom_right[0] + bottom_left[0]) / 4
 	cy = (top_left[1] + top_right[1] + bottom_right[1] + bottom_left[1]) / 4
@@ -61,14 +62,16 @@ while 1:
 	img = pipe.cv_erode_output
 	contour_data = pipe.find_contours_output
 	
+	
 	# For actual implementation, draw the rectangles with the 2 biggest areas instead of the single one
 	if len(contour_data) >= 2:
+		
 		areas = [cv2.contourArea(c) for c in contour_data]
 		max_index = numpy.argmax(areas)
 		
-
 		first_rect = contour_data[max_index]
 		areas.pop(max_index)
+		contour_data.pop(max_index)
 		max_index = numpy.argmax(areas)
 		second_rect = contour_data[max_index]
 		
@@ -89,4 +92,3 @@ while 1:
 	
 	if cv2.waitKey(1) & 0xFF == ord('q'):
 		break
-
