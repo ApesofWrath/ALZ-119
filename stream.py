@@ -2,6 +2,9 @@ import pyrealsense2 as rs
 from networktables import NetworkTables
 import threading
 
+cond = threading.Condition()
+notified = [False]
+
 def connectionListener(connected, info):
 
     print(info, '; Connected=%s' % connected)
@@ -10,9 +13,6 @@ def connectionListener(connected, info):
         cond.notify()
 
 def startNetworkTables():
-
-    cond = threading.Condition()
-    notified = [False]
 
     NetworkTables.startClientTeam(668)
     NetworkTables.initialize(server='10.6.68.2') #roborio must be on this static ip
@@ -24,11 +24,11 @@ def startNetworkTables():
             cond.wait()
 
     print("Connected!")
-    table = NetworkTables.getTable('SmartDashboard')
 
 try:
 
     startNetworkTables()
+    table = NetworkTables.getTable('SmartDashboard')
     # Create a context object. This object owns the handles to all connected realsense devices
     pipeline = rs.pipeline()
     pipeline.start()
