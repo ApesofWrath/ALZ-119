@@ -32,29 +32,36 @@ def approximateAngle(x, y):
 
 def actualAngle(x, y):
 	# math.degrees(atan(o/a))
-	print("X: " + str(x))
+	#print("X: " + str(x))
 	pixel_width_percentage = (x - WIDTH / 2) / (WIDTH / 2)
 	return math.degrees(math.atan(pixel_width_percentage * SENSOR_WIDTH / F_LENGTH))
 
 def getCenters(box):
-	top_right = box[0]
-	top_left = box[1]
-	bottom_left = box[2]
-	bottom_right = box[3]
-	#print ("TOP_LEFT: " + str(top_left) + "TOP RIGHT: " + str(top_right) + " BOTTOM_RIGHT: " + str(bottom_right) + " BOTTOM_LEFT: " + str(bottom_left))
+	# Find the two greatest lowest, from top left >:( y values and take the average
+	# this is the center highest reliable point to use for output
+	greatest_y = [box[0], box[1]]
+	for i in range(2, 4):
+		if box[i][1] < greatest_y[0][1]:
+			greatest_y[0] = box[i]
+		elif box[i][1] < greatest_y[1][1]:
+			greatest_y[1] = box[i];
+ 
+ 	cx = (greatest_y[0][0] + greatest_y[1][0]) / 2
+ 	cy = (greatest_y[0][1] + greatest_y[1][1]) / 2
 
-	cx = (top_left[0] + top_right[0] + bottom_right[0] + bottom_left[0]) / 4
-	cy = (top_left[1] + top_right[1] + bottom_right[1] + bottom_left[1]) / 4
 	return cx, cy
 
-def calcAngles(box1 ,box2):
+def calcAngles(box1 ,box2, img):
 	cx1, cy1 = getCenters(box1)
 	cx2, cy2  = getCenters(box2)
 	cx = (cx1 + cx2) / 2
 	cy = (cy1 + cy2) / 2
 	
-	print ("Approx Angle: " + str(approximateAngle(cx, cy)))
-	print ("Actual Angle: " + str(actualAngle(cx, cy)))
+	cv2.rectangle(img, (cx, cy), (cx + 10, cy + 10),  (100, 50, 50), 10)
+	
+	
+	#print ("Approx Angle: " + str(approximateAngle(cx, cy)))
+	#print ("Actual Angle: " + str(actualAngle(cx, cy)))
 
 while 1:
 	ret, im = cap.read()
@@ -85,7 +92,7 @@ while 1:
 		box2 = numpy.int0(box2)
 		cv2.drawContours(img,[box2], 0, (100, 50, 50), 10)
 		
-		calcAngles(box1, box2)
+		calcAngles(box1, box2, img)
 
 	cv2.imshow("CONTOUR",  img)
 	time.sleep(1/30)
