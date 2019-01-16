@@ -9,7 +9,7 @@ import sys
 	# FOCAL LENGTH; 3.67mm
 	# FRAME RATE: 30fps
 	# DIMENSIONS: 1920x1080
-	# SENSOR_WIDTH = 2.804mm (calculated with focal_length * tan(FOV/2)
+	# SENSOR_WIDTH = 2.804mm (calculated with focal_length * tan(FOV/2) * 2)
 
 cap = cv2.VideoCapture(0)
 pipe = grip.GreenProfile()
@@ -18,7 +18,7 @@ WIDTH = 1920.0
 HEIGHT = 1080.0
 H_FOV = 70.42
 F_LENGTH = 0.00367 # in meters
-SENSOR_WIDTH = 0.002804 # in meters
+SENSOR_WIDTH = 0.005608 # in meters
 
 dp = dataprocess.DataProcess(cap, pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
 

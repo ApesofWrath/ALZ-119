@@ -31,7 +31,7 @@ class DataProcess:
 	# returns the actual angle from the center of the screen to x, y
 	def actualAngle(self, x, y):
 		pixel_width_percentage = (x - self.WIDTH / 2) / (self.WIDTH / 2)
-		return math.degrees(math.atan(pixel_width_percentage * self.SENSOR_WIDTH / self.F_LENGTH))
+		return math.degrees(math.atan(pixel_width_percentage * self.SENSOR_WIDTH * 0.5 / self.F_LENGTH))
 		
 	# return the mid point of the line connecting the average of each of the top two points of rectangle
 	def getReferencePoint(self, box):
