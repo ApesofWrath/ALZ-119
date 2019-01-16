@@ -3,12 +3,18 @@ from networktables import NetworkTables
 import threading
 import grip
 import cv2
-import numpy
-import data_process
+import numpy as np
+import data_process as dp
 import math
 import sys
 
-grip_pipeline = grip.VisionTestPipeline()
+WIDTH = 1920.0
+HEIGHT = 1080.0
+H_FOV = 85.2
+F_LENGTH = 0.00193 # in meters
+SENSOR_WIDTH = 0.002804 # in meters #TODO: find this
+
+grip_pipe = grip.VisionTestPipeline()
 
 cond = threading.Condition() #global for network tables
 notified = [False]
@@ -38,24 +44,31 @@ try:
     startNetworkTables()
     table = NetworkTables.getTable('SmartDashboard')
 
-    # Create a context object. This object owns the handles to all connected realsense devices
-    pipeline = rs.pipeline()
-    pipeline.start()
+    pipe = rs.pipeline()
+    pipe.start()
 
-    # This call waits until a new coherent set of frames is available on a device
-    # Calls to get_frame_data(...) and get_frame_timestamp(...) on a device will return stable values until wait_for_frames(...) is called
     while True:
-        frames = pipeline.wait_for_frames()
+        frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
         color = frames.get_color_frame()
-    #    grip_pipeline.process()
         if not depth or not color:
             continue
-        rgb = np.asanyarray(color.get_data())
+        img = np.asanyarray(color.get_data())
+#    dp = data_process.DataProcess(cap, pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
+
+
+    #    img = cv.CreateMat(h, w, cv.CV_32FC3)
+    #   c++ original - Mat color(Size(640, 480), CV_8UC3, (void*)color_frame.get_data(), Mat::AUTO_STEP);
+    #    img = np.zeros((256, 256, 1), dtype = "uint8")
+
+         grip_pipeline.process(img)
+         cv2.imshow('RealSense', img)
+         cv2.waitKey(0)
         dist = depth.get_distance(640, 360)
         print(dist)
         table.putNumber('depth', dist)
     exit(0)
+
 #except rs.error as e:
 #    # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
 #    print("pylibrs.error was thrown when calling %s(%s):\n", % (e.get_failed_function(), e.get_failed_args()))
