@@ -1,8 +1,16 @@
 import pyrealsense2 as rs
 from networktables import NetworkTables
 import threading
+import grip
+import cv2
+import numpy
+import data_process
+import math
+import sys
 
-cond = threading.Condition()
+grip_pipeline = grip.VisionTestPipeline()
+
+cond = threading.Condition() #global for network tables
 notified = [False]
 
 def connectionListener(connected, info):
@@ -29,6 +37,7 @@ try:
 
     startNetworkTables()
     table = NetworkTables.getTable('SmartDashboard')
+
     # Create a context object. This object owns the handles to all connected realsense devices
     pipeline = rs.pipeline()
     pipeline.start()
@@ -38,8 +47,11 @@ try:
     while True:
         frames = pipeline.wait_for_frames()
         depth = frames.get_depth_frame()
-        if not depth:
+        color = frames.get_color_frame()
+    #    grip_pipeline.process()
+        if not depth or not color:
             continue
+        rgb = np.asanyarray(color.get_data())
         dist = depth.get_distance(640, 360)
         print(dist)
         table.putNumber('depth', dist)
