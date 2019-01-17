@@ -1,7 +1,6 @@
 # TODO: Add in more checks for rectangles 
-	# If only one rectangle detected, determine if leaning left or right, point from center proportional to size
+	# tune tape_aspect_ratio error to be more robust (probably needs to be increased)
 	# If two but one tiny/ doesn't match the other, make sure they are similar in size 
-	# If only one big one, take the upper center of it
 
 import cv2, numpy, math
 
@@ -14,6 +13,10 @@ class DataProcess:
 		self.SENSOR_WIDTH = sensor_width # Width of the sensor 
 		self.WIDTH = width # in pixels
 		self.HEIGHT = height # in pixels
+		
+		# constants that depend on the specs of the vision tape
+		self.ASPECT_RATIO_ERROR = 0.1 # correlates to 0.5 inches total for room (needs tuning)
+		self.TAPE_ASPECT_RATIO = 0.36363 # small / big (2 inches / 5.5 inches)
 		
 		# eyes on the prize point
 		self.cx = None
@@ -50,10 +53,10 @@ class DataProcess:
 		return cx, cy
 
 	# @param: 2 rectangles and an image to draw the point on
-	def calcAngles(self, box1 ,box2, img):
+	def calcAngles(self, box1 ,box2, offset, img):
 		cx1, cy1 = self.getReferencePoint(box1)
 		cx2, cy2  = self.getReferencePoint(box2)
-		self.cx = (cx1 + cx2) / 2
+		self.cx = (cx1 + cx2) / 2 + offset
 		self.cy = (cy1 + cy2) / 2
 	
 		#Draw the point on the image
@@ -63,39 +66,102 @@ class DataProcess:
 		# For testing
 			#print ("Approx Angle: " + str(approximateAngle(cx, cy)))
 			#print ("Actual Angle: " + str(actualAngle(cx, cy)))
+		
+	#incorporate into getRefPoint() return value
+	def __distance__(self, x1, y1, x2, y2):
+		return math.sqrt(x1 * x2 + y1 * y2)
+		
+	# Aspect ratio is small/big (should be 2 inches / 5.5 inches if perfect)
+	def getAspectRatio(self, box):
+		p1, p2, p3 = box[0], box[1], box[2]
+		
+		# Can do this because points are consecutive in cw or ccw order
+		d1 = self.__distance__(p1[0], p1[1], p2[0], p2[1])
+		d2 = self.__distance__(p2[0], p2[1], p3[0], p3[1])
+		
+		# figure out which side is the smaller side and 
+		if d1 > d2:
+			return d2 / d1
+		
+		return d1 / d2
+	
+	# returns a bounded rectangle from contour_data[max_index] and draws it to @param: img
+	def generateRect(self, contour_data, max_index, img):
+		rect = cv2.minAreaRect(contour_data[max_index])
+		box = cv2.boxPoints(rect)
+		box = numpy.int0(box)
+		cv2.drawContours(img,[box], 0, (100, 50, 50), 10)
+		
+		return box
+	
+	# remove the current largest area from the array and return the next largest area
+	def nextLargestArea(self, areas, contour_data, current_max):
+			# remove the first greatest area and find the second
+			areas.pop(current_max)
+			contour_data.pop(current_max)
+			max_index = numpy.argmax(areas)
 			
+			return max_index
+	
+	def oneVisionTapeDetected(self, box):
+		p1, p2, p3 = box[0], box[1], box[2]
+		cx, cy = self.getReferencePoint(box)
+		
+		# Can do this because points are consecutive in cw or ccw order
+		d1 = self.__distance__(p1[0], p1[1], p2[0], p2[1])
+		d2 = self.__distance__(p2[0], p2[1], p3[0], p3[1])
+		
+		# TODO: simplify to go off of negative vs. positive angles instead of slope (need to know which is above/below to get sign right?)
+		slope = 0
+		distance_pixels = 0
+		angle = math.radians(14.5)
+		if d1 > d2:
+			slope = (p2[1] - p1[1]) / (p2[0] - p1[0])
+			distance_pixels = d2
+			angle = math.pi / 2 - atan(abs(p2[1] - p1[1]) / abs(p2[0] - p1[0]))
+		else:
+			slope = (p3[1] - p2[1]) / (p3[0] - p2[0])
+			distance_pixels = d1
+			angle = math.pi / 2 - atan(abs(p3[1] - p2[1]) / abs(p2[0] - p2[0]))
+		
+		if slope < 0: # left leaning (right vision target)
+			offset = -(4 + math.cos(angle)) * distance_pixels / 2 # <-- ask Brian for explanation or draw a picture and derive it
+		else: # Right leaning (left vision target)
+			offset = (4 + math.cos(angle)) * distance_pixels / 2 # <-- ask Brian for explanation or draw a picture and derive it
+			
+		self.angle = self.calcAngles(box, box, offset)
+		
 	def update(self):
 		ret, im = self.cap.read()
 		self.pipe.process(im)
 		img = self.pipe.cv_erode_output
 		contour_data = self.pipe.find_contours_output
 		
-		# Make sure there are 2 rectangles detected
-		if len(contour_data) >= 2:
+		# future boxes for the bounded rectangles
+		rect1 = None
+		rect2 = None
+		
+		if len(contour_data) >= 1:
 			# Get the rectangle/contour with the largest area
 			areas = [cv2.contourArea(c) for c in contour_data]
 			max_index = numpy.argmax(areas)
-			first_rect = contour_data[max_index]
+			
+			rect1 = self.generateRect(contour_data, max_index, img)
+			
+		# Make sure there are 2 rectangles detected
+		if len(contour_data) >= 2:
+			max_index = self.nextLargestArea(areas, contour_data, max_index)
+			rect2 = self.generateRect(contour_data, max_index, img)
+			self.angle = self.calcAngles(rect1, rect2, 0, img)
+			
+		elif len(contour_data) == 1:
+			# TODO: check that the smaller side is the one on the top
+			if abs(self.getAspectRatio(rect1) - self.TAPE_ASPECT_RATIO) < self.ASPECT_RATIO_ERROR: # +-  0.5 inches for either edge
+				self.oneVisionTapeDetected(rect1)
+			else: #probably won't be applicable, and might cause more hassle than good, but we can deside when testing
+				# one big blob of both of the vision targets,
+				# get the eyes on the prize point for it instead of centers of other things
+				self.angle = self.calcAngles(rect1, rect1, 0, img)
 		
-			# remove the first greatest area and find the second
-			areas.pop(max_index)
-			contour_data.pop(max_index)
-			max_index = numpy.argmax(areas)
-			second_rect = contour_data[max_index]
-		
-			# Draw the first rectangle
-			rect = cv2.minAreaRect(first_rect)
-			box1 = cv2.boxPoints(rect)
-			box1 = numpy.int0(box1)
-			cv2.drawContours(img,[box1], 0, (100, 50, 50), 10)
-		
-			# Draw the second rectangle
-			rect = cv2.minAreaRect(second_rect)
-			box2 = cv2.boxPoints(rect)
-			box2 = numpy.int0(box2)
-			cv2.drawContours(img,[box2], 0, (100, 50, 50), 10)
-		
-			self.angle = calcAngles(box1, box2, img)
-
 		cv2.imshow("CONTOUR",  img)
 		
