@@ -11,8 +11,7 @@
 import cv2, numpy, math
 
 class DataProcess:
-	def __init__(self, cap, pipe, h_fov, f_length, sensor_width, width, height):
-		self.cap = cap #cap requires compatibility with the opencv in the GRIP file
+	def __init__(self, pipe, h_fov, f_length, sensor_width, width, height):
 		self.pipe = pipe # the object from the grip file
 		self.H_FOV = h_fov # Horizontal View of View
 		self.F_LENGTH = f_length # Focal length
@@ -28,9 +27,6 @@ class DataProcess:
 		self.cx = None
 		self.cy = None
 		self.angle = None
-		
-		if not self.cap.isOpened():
-			self.cap.open()
 	
 	# returns the linear horizontal angle from the center of the screen to x, y		
 	def approximateAngle(self, x, y):
@@ -140,8 +136,7 @@ class DataProcess:
 		offset /= 2
 		self.angle = self.calcAngles(box, box, offset, img)
 		
-	def update(self):
-		ret, im = self.cap.read()
+	def update(self, im):
 		self.pipe.process(im)
 		img = self.pipe.cv_erode_output
 		contour_data = self.pipe.find_contours_output
