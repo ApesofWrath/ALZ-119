@@ -65,6 +65,7 @@ class VisionTestPipeline:
         """
         Runs the pipeline and sets all outputs to new values.
         """
+        print("process func")
         # Step CV_resize0:
         self.__cv_resize_src = source0
         (self.cv_resize_output) = self.__cv_resize(self.__cv_resize_src, self.__cv_resize_dsize, self.__cv_resize_fx, self.__cv_resize_fy, self.__cv_resize_interpolation)
@@ -159,7 +160,7 @@ class VisionTestPipeline:
         else:
             mode = cv2.RETR_LIST
         method = cv2.CHAIN_APPROX_SIMPLE
-        im2, contours, hierarchy =cv2.findContours(input, mode=mode, method=method)
+        contours, hierarchy =cv2.findContours(input, mode=mode, method=method) #findCountours has two outputs
         return contours
 
     @staticmethod

@@ -4,7 +4,7 @@ import threading
 import grip
 import cv2
 import numpy as np
-import data_process as dp
+import data_process
 import math
 import sys
 
@@ -47,6 +47,8 @@ try:
     pipe = rs.pipeline()
     pipe.start()
 
+    dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
+
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
@@ -54,22 +56,22 @@ try:
         if not depth or not color:
             continue
         img = np.asanyarray(color.get_data())
-#    dp = data_process.DataProcess(cap, pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
 
 
-    #    img = cv.CreateMat(h, w, cv.CV_32FC3)
+
+    #    mat = cv2.cv.fromarray(img)
     #   c++ original - Mat color(Size(640, 480), CV_8UC3, (void*)color_frame.get_data(), Mat::AUTO_STEP);
     #    img = np.zeros((256, 256, 1), dtype = "uint8")
 
-         grip_pipeline.process(img)
-         cv2.imshow('RealSense', img)
-         cv2.waitKey(0)
+        dp.update(img)
+
+        if cv2.waitKey(1) & 0xF == ord('q'):
+            break
+
         dist = depth.get_distance(640, 360)
         print(dist)
         table.putNumber('depth', dist)
     exit(0)
-
-#except rs.error as e:
 #    # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
 #    print("pylibrs.error was thrown when calling %s(%s):\n", % (e.get_failed_function(), e.get_failed_args()))
 #    print("    %s\n", e.what())
