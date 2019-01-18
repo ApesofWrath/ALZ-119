@@ -11,7 +11,7 @@ import sys
 	# DIMENSIONS: 1920x1080
 	# SENSOR_WIDTH = 5.608mm (calculated with focal_length * tan(FOV/2) * 2)
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 pipe = grip.GreenProfile()
 
 WIDTH = 1920.0
