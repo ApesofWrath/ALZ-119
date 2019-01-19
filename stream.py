@@ -4,7 +4,17 @@ import threading
 import numpy as np
 import cv2
 
-//will not need to pass anything but a bool to network Tables
+#will not need to pass anything but a bool to network Tables
+
+neural network
+no COLOr vision
+vision with depth stream
+height of cam must be very specific
+lighting change
+disco ball error
+grip process the depth stream color
+
+
 
 cond = threading.Condition()
 notified = [False]
@@ -46,12 +56,14 @@ try:
         depth = frames.get_depth_frame()
         if not depth:
             continue
-        depth_image = np.asanyarray(depth_frame.get_data())
+        depth_image = np.asanyarray(depth.get_data())
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        cv2.imshow('RealSense', images)
+        cv2.imshow('RealSense', depth_colormap)
         cv2.waitKey(1)
 
 finally:
-
+#13.5
+#17
+#19
     pipeline.stop()
