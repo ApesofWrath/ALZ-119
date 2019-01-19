@@ -5,8 +5,6 @@
 		# Check to make sure that they're both facing inwards
 		# take the targets that are closest to the middle
 	# Make img global (too many functions need it)
-	# change oneVisionTargetDetected to add y component is angle != 14.5 degrees as to calibrate for 
-		# ...tilted and odd angled tape (ex: if approaching from extreme angle)
 
 import cv2, numpy, math
 
@@ -121,13 +119,16 @@ class DataProcess:
 		offset_x = 0.0
 		offset_y = 0.0
 		
-		if d1 > d2:
+		distance_pixels = min(d1, d2)
+		
+		if p2[0] == p1[0] or p3[0] == p2[0]: # fix divide by zero error
+			slope = (float(p2[1]) - p1[1]) / 0.01
+			angle = 0
+		elif d1 > d2:
 			slope = (float(p2[1]) - p1[1]) / (float(p2[0]) - p1[0])
-			distance_pixels = d2 # small side as reference
 			angle = float(math.pi / 2 - math.atan(float(abs(p2[1] - p1[1])) / abs(p2[0] - p1[0])))
 		else:
 			slope = (float(p3[1]) - p2[1]) / (float(p3[0]) - p2[0])
-			distance_pixels = d1 # small side as reference
 			angle = float(math.pi / 2 - math.atan(float(abs(p3[1] - p2[1])) / abs(p3[0] - p2[0])))
 			
 			
