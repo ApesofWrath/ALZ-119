@@ -33,14 +33,12 @@ try:
 
 #    startNetworkTables()
 #    table = NetworkTables.getTable('SmartDashboard')
-    # Create a context object. This object owns the handles to all connected realsense devices
+
     pipeline = rs.pipeline()
     config = rs.config()
     config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
     pipeline.start(config)
 
-    # This call waits until a new coherent set of frames is available on a device
-    # Calls to get_frame_data(...) and get_frame_timestamp(...) on a device will return stable values until wait_for_frames(...) is called
     while True:
         frames = pipeline.wait_for_frames()
         depth = frames.get_depth_frame()
@@ -52,10 +50,9 @@ try:
         cv2.imshow('RealSense', depth_colormap)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            cv2.imwrite('test.png',depth_colormap)
             break
 
 finally:
-#13.5
-#17
-#19
+
     pipeline.stop()
