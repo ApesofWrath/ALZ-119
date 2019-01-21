@@ -7,6 +7,9 @@ import grip
 
 grip_pipeline = grip.HatchPipeline()
 
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640,480))
+
 #will not need to pass anything but a bool to network Tables
 
 cond = threading.Condition()
@@ -50,6 +53,7 @@ try:
         depth_image = np.asanyarray(depth.get_data())
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         grip_pipeline.process(depth_colormap)
+        out.write(grip_pipeline.hsl_threshold_output)
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
         #show_img = np.asanyarray(grip_pipeline.find_blobs_output)
         cv2.imshow('RealSense', grip_pipeline.hsl_threshold_output)
@@ -58,5 +62,6 @@ try:
             break
 
 finally:
-
     pipeline.stop()
+    out.release()
+    cv2.destroyAllWindows()
