@@ -29,6 +29,10 @@ try:
 
     startNetworkTables()
     table = NetworkTables.getTable('SmartDashboard')
+    testNum = 670.0
+    startedOnBoot = True
+    table.putNumber('test', testNum)
+    table.putBoolean('startOnBoot', startedOnBoot)
     # Create a context object. This object owns the handles to all connected realsense devices
     pipeline = rs.pipeline()
     pipeline.start()
@@ -51,4 +55,4 @@ try:
 #    exit(1)
 except Exception as e:
     print(e)
-    pass
+pass
