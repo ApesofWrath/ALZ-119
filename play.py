@@ -1,13 +1,12 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture('output.avi')
+vid = cv2.VideoCapture("output.avi")
+d = 0
+ret, frame = vid.read()
 
-while(cap.isOpened()):
-    ret, frame = cap.read()
-    cv2.imshow("frame",frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()
+while ret:
+    ret, frame = vid.read()
+    filename = "images/file_%d.jpg"%d
+    cv2.imwrite(filename, frame)
+    d+=1
