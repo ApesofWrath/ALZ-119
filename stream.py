@@ -56,14 +56,10 @@ try:
         if not color:
             continue
         img = np.asanyarray(color.get_data())
-
-
-
-    #    mat = cv2.cv.fromarray(img)
-    #   c++ original - Mat color(Size(640, 480), CV_8UC3, (void*)color_frame.get_data(), Mat::AUTO_STEP);
-    #    img = np.zeros((256, 256, 1), dtype = "uint8")
-
-        dp.update(img)
+        grip_pipe.process(img)
+        cv2.imshow("grip", grip_pipe.hsv_threshold_output)
+    #    dp.update(img)
+    #    print("past update")
 
         if cv2.waitKey(1) & 0xF == ord('q'):
             break

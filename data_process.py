@@ -149,14 +149,14 @@ class DataProcess:
 		self.angle = self.calcAngles(box, box, offset_x, offset_y)
 
 	def update(self, im):
-		self.pipe.process(im)
-		self.img = self.pipe.cv_erode_output
+		#self.pipe.process(im)
+		self.img = im
 		contour_data = self.pipe.find_contours_output
 
 		# future boxes for the bounded rectangles
 		rect1 = None
 		rect2 = None
-
+		print("about to draw rect")
 		if len(contour_data) >= 1:
 			# Get the rectangle/contour with the largest area
 			areas = [cv2.contourArea(c) for c in contour_data]
