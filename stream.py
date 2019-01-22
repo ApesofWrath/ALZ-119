@@ -12,9 +12,9 @@ WIDTH = 1920.0
 HEIGHT = 1080.0
 H_FOV = 85.2
 F_LENGTH = 0.00193 # in meters
-SENSOR_WIDTH = 0.002804 # in meters #TODO: find this
+SENSOR_WIDTH = 0.003549 # in meter
 
-grip_pipe = grip.VisionTestPipeline()
+grip_pipe = grip.GreenProfile()
 
 cond = threading.Condition() #global for network tables
 notified = [False]
@@ -41,8 +41,8 @@ def startNetworkTables():
 
 try:
 
-    startNetworkTables()
-    table = NetworkTables.getTable('SmartDashboard')
+#    startNetworkTables()
+#    table = NetworkTables.getTable('SmartDashboard')
 
     pipe = rs.pipeline()
     pipe.start()
@@ -51,9 +51,9 @@ try:
 
     while True:
         frames = pipe.wait_for_frames()
-        depth = frames.get_depth_frame()
+    #    depth = frames.get_depth_frame()
         color = frames.get_color_frame()
-        if not depth or not color:
+        if not color:
             continue
         img = np.asanyarray(color.get_data())
 
@@ -68,9 +68,9 @@ try:
         if cv2.waitKey(1) & 0xF == ord('q'):
             break
 
-        dist = depth.get_distance(640, 360)
-        print(dist)
-        table.putNumber('depth', dist)
+#        dist = depth.get_distance(640, 360)
+#        print(dist)
+    #    table.putNumber('depth', dist)
     exit(0)
 #    # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
 #    print("pylibrs.error was thrown when calling %s(%s):\n", % (e.get_failed_function(), e.get_failed_args()))
