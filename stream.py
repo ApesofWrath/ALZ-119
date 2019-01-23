@@ -47,6 +47,9 @@ try:
     pipe = rs.pipeline()
     pipe.start()
 
+    for x in range(5):
+        pipe.wait_for_frames()
+
     dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
 
     while True:
