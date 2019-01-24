@@ -46,7 +46,6 @@ try:
 
     pipe = rs.pipeline()
     config = rs.config()
-    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
     config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
     pipe.start(config)
 
@@ -62,9 +61,11 @@ try:
         if not color:
             continue
         img = np.asarray(color.get_data()) #for ndarray?
-
+#       depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         grip_pipe.process(img)
-        cv2.imshow("grip", grip_pipe.hsv_threshold_output)
+        #out.write(grip_pipeline.hsl_threshold_output)
+        cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
+        cv2.imshow('RealSense', grip_pipe.hsv_threshold_output)
     #    dp.update(img)
     #    print("past update")
 
@@ -75,11 +76,10 @@ try:
 #        dist = depth.get_distance(640, 360)
 #        print(dist)
     #    table.putNumber('depth', dist)
-    exit(0)
+finally:
+    pipe.stop()
+    cv2.destroyAllWindows()
 #    # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
 #    print("pylibrs.error was thrown when calling %s(%s):\n", % (e.get_failed_function(), e.get_failed_args()))
 #    print("    %s\n", e.what())
 #    exit(1)
-except Exception as e:
-    print(e)
-    pass
