@@ -45,12 +45,15 @@ try:
 #    table = NetworkTables.getTable('SmartDashboard')
 
     pipe = rs.pipeline()
-    pipe.start()
+    config = rs.config()
+    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    pipe.start(config)
 
     for x in range(5):
         pipe.wait_for_frames()
 
-    dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
+    #dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
 
     while True:
         frames = pipe.wait_for_frames()
@@ -59,13 +62,14 @@ try:
         if not color:
             continue
         img = np.asarray(color.get_data()) #for ndarray?
-        #rbg or bgr?
+
         grip_pipe.process(img)
         cv2.imshow("grip", grip_pipe.hsv_threshold_output)
     #    dp.update(img)
     #    print("past update")
 
         if cv2.waitKey(1) & 0xF == ord('q'):
+            print("leave")
             break
 
 #        dist = depth.get_distance(640, 360)

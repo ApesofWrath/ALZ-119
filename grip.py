@@ -43,6 +43,7 @@ class GreenProfile:
         """
         Runs the pipeline and sets all outputs to new values.
         """
+        #source0 = cv2.cvtColor(source0, cv2.COLOR_RGB2BGR) #realsense outputs rgb
         # Step HSV_Threshold0:
         self.__hsv_threshold_input = source0
         (self.hsv_threshold_output) = self.__hsv_threshold(self.__hsv_threshold_input, self.__hsv_threshold_hue, self.__hsv_threshold_saturation, self.__hsv_threshold_value)
