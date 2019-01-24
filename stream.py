@@ -58,7 +58,8 @@ try:
         color = frames.get_color_frame()
         if not color:
             continue
-        img = np.asanyarray(color.get_data())
+        img = np.asarray(color.get_data()) #for ndarray?
+        #rbg or bgr?
         grip_pipe.process(img)
         cv2.imshow("grip", grip_pipe.hsv_threshold_output)
     #    dp.update(img)
