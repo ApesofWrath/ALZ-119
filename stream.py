@@ -45,31 +45,43 @@ try:
 #    table = NetworkTables.getTable('SmartDashboard')
 
     pipe = rs.pipeline()
-    config = rs.config()
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-    pipe.start(config)
+#    config = rs.config()
+    #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    #config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    pipe.start()
+
+    print("conf")
 
     for x in range(5):
         pipe.wait_for_frames()
 
-    #dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
+    dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
+    print("dp")
 
     while True:
         frames = pipe.wait_for_frames()
-    #    depth = frames.get_depth_frame()
+        depth = frames.get_depth_frame()
         color = frames.get_color_frame()
-        if not color:
+        # print("getting")
+        if not (color and depth):
             continue
+
+        # print("yes color and depth")
         img = np.asarray(color.get_data()) #for ndarray?
 #       depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         grip_pipe.process(img)
+        # print("process")
         #out.write(grip_pipeline.hsl_threshold_output)
-        cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        cv2.imshow('RealSense', grip_pipe.hsv_threshold_output)
-    #    dp.update(img)
+#        cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
+#        cv2.imshow('RealSense', grip_pipe.hsv_threshold_output)
+        dp.update(img)
+        left = int(dp.cx)
+        down = int(dp.cy)
+        dist = depth.get_distance(left, down)
+        print(dist)
     #    print("past update")
-
-        if cv2.waitKey(1) & 0xF == ord('q'):
+        # print("cx: " + str(dp.cx) + " cy: " + str(dp.cy))
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
             break
 
