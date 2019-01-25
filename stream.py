@@ -50,44 +50,28 @@ try:
     config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
     pipe.start(config)
 
-    print("conf")
-
-    for x in range(5):
-        pipe.wait_for_frames()
-
     dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
-    print("dp")
 
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
         color = frames.get_color_frame()
-        # print("getting")
         if not (color and depth):
             continue
 
-        # print("yes color and depth")
-        img = np.asarray(color.get_data()) #for ndarray?
-#       depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+        img = np.asarray(color.get_data())
         grip_pipe.process(img)
-        # print("process")
-        #out.write(grip_pipeline.hsl_threshold_output)
-#        cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-#        cv2.imshow('RealSense', grip_pipe.hsv_threshold_output)
+
         dp.update(img)
         left = int(dp.cx)
         down = int(dp.cy)
         dist = depth.get_distance(left, down)
         print("yay " + str(dist))
-    #    print("past update")
-        print("cx: " + str(dp.cx) + " cy: " + str(dp.cy))
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
             break
 
-#        dist = depth.get_distance(640, 360)
-#        print(dist)
-    #    table.putNumber('depth', dist)
 finally:
     pipe.stop()
     cv2.destroyAllWindows()
