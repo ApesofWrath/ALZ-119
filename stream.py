@@ -8,8 +8,8 @@ import data_process
 import math
 import sys
 
-WIDTH = 1920.0
-HEIGHT = 1080.0
+WIDTH = 640.0
+HEIGHT = 480.0
 H_FOV = 85.2
 F_LENGTH = 0.00193 # in meters
 SENSOR_WIDTH = 0.003549 # in meter
@@ -67,6 +67,8 @@ try:
         down = int(dp.cy)
         dist = depth.get_distance(left, down)
         print("yay " + str(dist))
+
+        print("ang" + str(dp.angle))
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
