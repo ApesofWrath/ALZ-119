@@ -152,7 +152,7 @@ class DataProcess:
 		self.pipe.process(im)
 		self.img = im
 		contour_data = self.pipe.find_contours_output
-		print(contour_data)
+		# print(contour_data)
 		# future boxes for the bounded rectangles
 		rect1 = None
 		rect2 = None
