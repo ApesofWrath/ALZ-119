@@ -45,10 +45,10 @@ try:
 #    table = NetworkTables.getTable('SmartDashboard')
 
     pipe = rs.pipeline()
-#    config = rs.config()
-    #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    config = rs.config()
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
     #config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-    pipe.start()
+    pipe.start(config)
 
     print("conf")
 
@@ -60,10 +60,10 @@ try:
 
     while True:
         frames = pipe.wait_for_frames()
-        depth = frames.get_depth_frame()
+
         color = frames.get_color_frame()
         # print("getting")
-        if not (color and depth):
+        if not color:
             continue
 
         # print("yes color and depth")
@@ -75,10 +75,10 @@ try:
 #        cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
 #        cv2.imshow('RealSense', grip_pipe.hsv_threshold_output)
         dp.update(img)
-        left = int(dp.cx)
-        down = int(dp.cy)
-        dist = depth.get_distance(left, down)
-        print(dist)
+    #    left = int(dp.cx)
+    #    down = int(dp.cy)
+    #    dist = depth.get_distance(left, down)
+    #    print(dist)
     #    print("past update")
         # print("cx: " + str(dp.cx) + " cy: " + str(dp.cy))
         if cv2.waitKey(1) & 0xFF == ord('q'):
