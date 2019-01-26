@@ -134,7 +134,6 @@ class DataProcess:
 
 		slope *= -1 # reflect about the x axis to convert to more sensical coordinate system (form upper left coordinates)
 
-		EOP_default = 0.0
 		EOP_default = (4 + math.cos(14.5)) * distance_pixels / 2
 
 
@@ -148,6 +147,34 @@ class DataProcess:
 
 		self.angle = self.calcAngles(box, box, offset_x, offset_y)
 
+	def convertToRects(self, contour_data):
+		rects = []
+		for i in range(0, len(contour_data)):
+			rects.append(self.generateRect(contour_data, i))
+		return rects
+
+	def getGoalRectangles(self, contour_data):
+		# index1, index2 = len(contour_data) / 2, len(contour_data) / 2 + 1
+		# contour_data = [contour_data[index1], contour_data[index2]]
+		# get the centers of the contours
+		rects = self.convertToRects(contour_data)
+		# print(contour_data)
+		distance_to_center = []
+		for rect in rects:
+			x_av = 0.0
+			for i in range (0, len(rect)):
+				x_av += rect[i][0]
+			distance_to_center.append(abs(x_av / 4 - 640 / 2))
+		# print("ALL: " + str(distance_to_center))
+
+		distance_to_center_sorted = sorted(distance_to_center)
+		# print("SORTED: " + str(centers_sorted))
+		index1, index2 = distance_to_center.index(distance_to_center_sorted[0]), distance_to_center.index(distance_to_center_sorted[1])
+		# print("PICKED: " + str(index1) + ", " + str(index2))
+		contour_data = [contour_data[index1], contour_data[index2]]
+
+		return contour_data
+
 	def update(self, im):
 		self.pipe.process(im)
 		self.img = im
@@ -157,6 +184,8 @@ class DataProcess:
 		rect1 = None
 		rect2 = None
 		# print("about to draw rect")
+		if len(contour_data) > 2:
+			contour_data = self.getGoalRectangles(contour_data)
 		if len(contour_data) >= 1:
 			# Get the rectangle/contour with the largest area
 			areas = [cv2.contourArea(c) for c in contour_data]
@@ -165,7 +194,7 @@ class DataProcess:
 			rect1 = self.generateRect(contour_data, max_index)
 
 		# Make sure there are 2 rectangles detected
-		if len(contour_data) >= 2:
+		if len(contour_data) == 2:
 			max_index = self.nextLargestArea(areas, contour_data, max_index)
 			rect2 = self.generateRect(contour_data, max_index)
 			self.angle = self.calcAngles(rect1, rect2, 0, 0)

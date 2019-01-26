@@ -10,7 +10,7 @@ import sys
 
 WIDTH = 640.0
 HEIGHT = 480.0
-H_FOV = 85.2
+H_FOV = 53.13 # need to recalculate if change WIDTH dimension  (line up meter stick and get distance then atan)
 F_LENGTH = 0.00193 # in meters
 SENSOR_WIDTH = 0.003549 # in meter
 
@@ -46,8 +46,8 @@ try:
 
     pipe = rs.pipeline()
     config = rs.config()
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    config.enable_stream(rs.stream.color, int(WIDTH), int(HEIGHT), rs.format.bgr8, 30)
+    config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 30)
     pipe.start(config)
 
     dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
@@ -65,10 +65,10 @@ try:
         dp.update(img)
         left = int(dp.cx)
         down = int(dp.cy)
-        dist = depth.get_distance(left, down)
-        print("yay " + str(dist))
+        dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
+        # print("yay " + str(dist))
 
-        print("ang" + str(dp.angle))
+        # print("ang: " + str(dp.angle))
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
