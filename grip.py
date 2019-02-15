@@ -78,5 +78,3 @@ class HatchPipeline:
         params.filterByInertia = False
         detector = cv2.SimpleBlobDetector_create(params)
         return detector.detect(input)
-Drag and Drop
-The image will be downloaded by Fatkun
