@@ -7,9 +7,10 @@ import numpy as np
 import data_process
 import math
 import sys
+import cscore as cs
 
-WIDTH = 640.0
-HEIGHT = 480.0
+WIDTH = 640
+HEIGHT = 480
 H_FOV = 53.13 # need to recalculate if change WIDTH dimension  (line up meter stick and get distance then atan)
 F_LENGTH = 0.00193 # in meters
 SENSOR_WIDTH = 0.003549 # in meter
@@ -41,17 +42,22 @@ def startNetworkTables():
 
 try:
 
-#    startNetworkTables()
-#    table = NetworkTables.getTable('SmartDashboard')
+    startNetworkTables()
+    table = NetworkTables.getTable('SmartDashboard')
 
     pipe = rs.pipeline()
     config = rs.config()
-    config.enable_stream(rs.stream.color, int(WIDTH), int(HEIGHT), rs.format.bgr8, 30)
-    config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 30)
+    config.enable_stream(rs.stream.color, int(WIDTH), int(HEIGHT), rs.format.bgr8, 60) #numbers that work: 6, 15
+    config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
     pipe.start(config)
 
     dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
 
+#    cam = cs.UsbCamera("webcam", 0)
+    cserver = cs.CameraServer()
+
+    src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
+    cserver.startAutomaticCapture(camera=src) 
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
@@ -66,9 +72,18 @@ try:
         left = int(dp.cx)
         down = int(dp.cy)
         dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
-        # print("yay " + str(dist))
+        print("yay " + str(dist))
 
-        # print("ang: " + str(dp.angle))
+        print("ang: " + str(dp.angle))
+
+        if not dp.isTapeDetected:
+            dist = 0
+            dp.angle = 0
+
+        table.putNumber('depth', dist)
+        table.putNumber('yaw', dp.angle)
+        print('depth: {d}, yaw: {y}'.format(d=dist, y=dp.angle))
+        src.putFrame(img)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
@@ -77,7 +92,7 @@ try:
 finally:
     pipe.stop()
     cv2.destroyAllWindows()
-#    # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
-#    print("pylibrs.error was thrown when calling %s(%s):\n", % (e.get_failed_function(), e.get_failed_args()))
-#    print("    %s\n", e.what())
-#    exit(1)
+    # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
+    print("pylibrs.error was thrown when calling %s(%s):\n" % (e.get_failed_function(), e.get_failed_args()))
+    print("    %s\n", e.what())
+    exit(1)

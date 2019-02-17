@@ -175,6 +175,9 @@ class DataProcess:
 
 		return contour_data
 
+	def isTapeDetected(self):
+		return len(self.pipe.find_contours_output) != -1
+
 	def update(self, im):
 		self.pipe.process(im)
 		self.img = im
@@ -203,7 +206,7 @@ class DataProcess:
 			# TODO: check that the smaller side is the one on the top
 			if abs(self.getAspectRatio(rect1) - self.TAPE_ASPECT_RATIO) < self.ASPECT_RATIO_ERROR: # +-  0.5 inches for either edge
 				self.oneVisionTapeDetected(rect1)
-			else: #probably won't be applicable, and might cause more hassle than good, but we can deside when testing
+			else: #probably won't be applicable, and might cause more hassle than good, but we can decide when testing
 				# one big blob of both of the vision targets,
 				# get the eyes on the prize point for it instead of centers of other things
 				self.angle = self.calcAngles(rect1, rect1, 0, 0)
