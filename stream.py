@@ -7,7 +7,7 @@ import numpy as np
 import data_process
 import math
 import sys
-import cscore as cs
+# import cscore as cs
 
 WIDTH = 640
 HEIGHT = 480
@@ -42,8 +42,8 @@ def startNetworkTables():
 
 try:
 
-    startNetworkTables()
-    table = NetworkTables.getTable('SmartDashboard')
+    # startNetworkTables()
+    # table = NetworkTables.getTable('SmartDashboard')
 
     pipe = rs.pipeline()
     config = rs.config()
@@ -53,11 +53,11 @@ try:
 
     dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
 
-#    cam = cs.UsbCamera("webcam", 0)
-    cserver = cs.CameraServer()
+   # cam = cs.UsbCamera("webcam", 0)
+    # cserver = cs.CameraServer()
 
-    src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
-    cserver.startAutomaticCapture(camera=src)
+    # src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
+    # cserver.startAutomaticCapture(camera=src)
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
@@ -83,10 +83,10 @@ try:
             dist = 0
             dp.angle = 0
 
-        table.putNumber('depth', dist)
-        table.putNumber('yaw', dp.angle)
+        # table.putNumber('depth', dist)
+        # table.putNumber('yaw', dp.angle)
         print('depth: {d}, yaw: {y}'.format(d=dist, y=dp.angle))
-        src.putFrame(img)
+        # src.putFrame(img)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
@@ -96,6 +96,6 @@ finally:
     pipe.stop()
     cv2.destroyAllWindows()
     # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
-    print("pylibrs.error was thrown when calling %s(%s):\n" % (e.get_failed_function(), e.get_failed_args()))
-    print("    %s\n", e.what())
+    # print("pylibrs.error was thrown when calling %s(%s):\n" % (e.get_failed_function(), e.get_failed_args()))
+    # print("    %s\n", e.what())
     exit(1)

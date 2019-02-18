@@ -206,7 +206,7 @@ class DataProcess:
 		if len(contour_data) == 2:
 			max_index = self.nextLargestArea(areas, contour_data, max_index)
 			rect2 = self.generateRect(contour_data, max_index)
-			elf.x2, self.y2 = self.getRefPoint(rect2)
+			self.x2, self.y2 = self.getRefPoint(rect2)
 			self.angle = self.calcAngles(rect1, rect2, 0, 0)
 
 		elif len(contour_data) == 1:
