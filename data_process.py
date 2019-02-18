@@ -1,5 +1,4 @@
-# TODO: Add in more checks for rectangles
-	# tune tape_aspect_ratio error to be more robust (probably needs to be increased)
+# TODO:
 	# Add functionality to sort vision targets on Cargo bay (most centered, other attributes to pick the right 2)
 		# Check to make sure that they're both facing inwards
 		# take the targets that are closest to the middle
@@ -25,6 +24,12 @@ class DataProcess:
 		self.cx = 0.0
 		self.cy = 0.0
 		self.angle = 0.0
+
+		# For Getting the depth with missing middle
+		self.x1 = 0.0
+		self.y1 = 0.0
+		self.x2 = 0.0
+		self.y2 = 0.0
 
 	# returns the linear horizontal angle from the center of the screen to x, y
 	def approximateAngle(self, x, y):
@@ -195,11 +200,13 @@ class DataProcess:
 			max_index = numpy.argmax(areas)
 
 			rect1 = self.generateRect(contour_data, max_index)
+			self.x1, self.y1 = self.getRefPoint(rect1)
 
 		# Make sure there are 2 rectangles detected
 		if len(contour_data) == 2:
 			max_index = self.nextLargestArea(areas, contour_data, max_index)
 			rect2 = self.generateRect(contour_data, max_index)
+			elf.x2, self.y2 = self.getRefPoint(rect2)
 			self.angle = self.calcAngles(rect1, rect2, 0, 0)
 
 		elif len(contour_data) == 1:

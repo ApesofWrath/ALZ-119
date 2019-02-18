@@ -57,7 +57,7 @@ try:
     cserver = cs.CameraServer()
 
     src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
-    cserver.startAutomaticCapture(camera=src) 
+    cserver.startAutomaticCapture(camera=src)
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
@@ -71,7 +71,10 @@ try:
         dp.update(img)
         left = int(dp.cx)
         down = int(dp.cy)
-        dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
+        # dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
+        dist1 = depth.get_distance(int(dp.x1), int(dp.y1))
+        dist2 = depth.get_distance(int(dp.x2), int(dp.y2))
+        dist = (dist1 + dist2) / 2
         print("yay " + str(dist))
 
         print("ang: " + str(dp.angle))
