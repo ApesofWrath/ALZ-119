@@ -18,15 +18,12 @@ class HatchDetection:
 		self.pipe.process(im)
 		self.img = self.pipe.hsv_threshold_output
 
-		contour_data = self.pipe.find_contours_output
-		for contour in contour_data:
-			print(cv2.contourArea(contour))
-		print()
+		contour_data = self.pipe.filter_contours_output
 
-		if self.generate_num_contours(contour_data) >= 3: # <--play with this value to change the tollerance
+		if len(contour_data) > 0: # <--play with this value to change the tollerance
 			self.is_hatch = True
 		else:
 			self.is_hatch = False
 
-		# print(self.is_hatch)
+		print(self.is_hatch)
 		cv2.imshow("CONTOUR", self.img)

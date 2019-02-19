@@ -1,9 +1,10 @@
-import grip, cv2, numpy, hatchdetection
+import yellowprofile, cv2, numpy, hatchdetection
 import math
 import sys
 
 cap = cv2.VideoCapture(1)
-pipe = grip.GripPipeline()
+# pipe = grip.GripPipeline()
+pipe = yellowprofile.YellowProfile()
 detection = hatchdetection.HatchDetection(pipe)
 
 if not cap.isOpened():
