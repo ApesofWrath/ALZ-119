@@ -47,6 +47,7 @@ try:
 
     pipe = rs.pipeline()
     config = rs.config()
+    config.set_option(RS2_OPTION_ENABLE_AUTO_EXPOSURE, False);
     config.enable_stream(rs.stream.color, int(WIDTH), int(HEIGHT), rs.format.bgr8, 60) #numbers that work: 6, 15
     config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
     pipe.start(config)
@@ -66,9 +67,9 @@ try:
             continue
 
         img = np.asarray(color.get_data())
-        grip_pipe.process(img)
 
         dp.update(img)
+
         left = int(dp.cx)
         down = int(dp.cy)
         # dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
@@ -85,17 +86,18 @@ try:
 
         # table.putNumber('depth', dist)
         # table.putNumber('yaw', dp.angle)
-        print('depth: {d}, yaw: {y}'.format(d=dist, y=dp.angle))
+        # print('depth: {d}, yaw: {y}'.format(d=dist, y=dp.angle))
         # src.putFrame(img)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
             break
 
-finally:
+except Exception as e:
     pipe.stop()
     cv2.destroyAllWindows()
     # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
     # print("pylibrs.error was thrown when calling %s(%s):\n" % (e.get_failed_function(), e.get_failed_args()))
     # print("    %s\n", e.what())
+    print(e)
     exit(1)
