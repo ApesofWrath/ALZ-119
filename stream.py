@@ -71,14 +71,14 @@ try:
 
         left = int(dp.cx)
         down = int(dp.cy)
-        # print("cx: " + str(left) + " cy: " + str(down) + "\n")
+
         # dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
         dist1 = depth.get_distance(int(dp.x1), int(dp.y1))
         dist2 = depth.get_distance(int(dp.x2), int(dp.y2))
         dist = (dist1 + dist2) / 2
         # print("yay " + str(dist))
-
-        print("ang: " + str(dp.angle))
+        print("d1: " + str(dist1) + " d2: " + str(dist2))
+        # print("ang: " + str(dp.angle))
 
         if not dp.isTapeDetected:
             dist = 0

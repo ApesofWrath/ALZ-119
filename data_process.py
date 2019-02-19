@@ -57,6 +57,16 @@ class DataProcess:
 
 		return cx, cy
 
+	def getMidPoint(self, box):
+		totalx = 0
+		totaly = 0
+		print(box[0][0])
+		for i in range(0, 4):
+			totalx += int(box[i][0])
+			totaly += int(box[i][1])
+
+		return totalx / 4.0, totaly / 4.0
+
 	# @param: 2 rectangles and an image to draw the point on
 	def calcAngles(self, box1, box2, offset_x, offset_y):
 		cx1, cy1 = self.getReferencePoint(box1)
@@ -209,13 +219,13 @@ class DataProcess:
 				max_index = numpy.argmax(areas)
 
 				rect1 = self.generateRect(contour_data, max_index)
-				self.x1, self.y1 = self.getReferencePoint(rect1)
+				self.x1, self.y1 = self.getMidPoint(rect1)
 
 			# Make sure there are 2 rectangles detected
 			if len(contour_data) == 2:
 				max_index = self.nextLargestArea(areas, contour_data, max_index)
 				rect2 = self.generateRect(contour_data, max_index)
-				self.x2, self.y2 = self.getReferencePoint(rect2)
+				self.x2, self.y2 = self.getMidPoint(rect2)
 				self.angle = self.calcAngles(rect1, rect2, 0, 0)
 
 
@@ -227,6 +237,6 @@ class DataProcess:
 					# one big blob of both of the vision targets,
 					# get the eyes on the prize point for it instead of centers of other things
 					self.angle = self.calcAngles(rect1, rect1, 0, 0)
-			print("cx: " + str(self.cx) + " cy: " + str(self.cy) + "\n")
-			print("appx angle: " + str(self.approximateAngle(self.cx, self.cy)))
+			# print("cx: " + str(self.cx) + " cy: " + str(self.cy) + "\n")
+			# print("appx angle: " + str(self.approximateAngle(self.cx, self.cy)))
 		cv2.imshow("CONTOUR",  self.img)
