@@ -33,12 +33,12 @@ class DataProcess:
 
 	# returns the linear horizontal angle from the center of the screen to x, y
 	def approximateAngle(self, x, y):
-		horizantal_conversion = H_FOV / WIDTH
-		return (x - WIDTH / 2) * horizantal_conversion
+		horizantal_conversion = self.H_FOV / self.WIDTH
+		return (x - self.WIDTH / 2) * horizantal_conversion
 
 	# returns the actual angle from the center of the screen to x, y
 	def actualAngle(self, x, y):
-		pixel_width_percentage = (x - self.WIDTH / 2) / (self.WIDTH / 2)
+		pixel_width_percentage = float(x - self.WIDTH / 2) / float(self.WIDTH / 2)
 		return math.degrees(math.atan(pixel_width_percentage * self.SENSOR_WIDTH * 0.5 / self.F_LENGTH))
 
 	# return the mid point of the line connecting the average of each of the top two points of rectangle
@@ -89,7 +89,7 @@ class DataProcess:
 			if d1 == 0:
 				d1 = 0.001
 			return d2 / d1
-			
+
 		if d2 == 0:
 			d2 = 0.001
 		return d1 / d2
@@ -218,6 +218,7 @@ class DataProcess:
 				self.x2, self.y2 = self.getReferencePoint(rect2)
 				self.angle = self.calcAngles(rect1, rect2, 0, 0)
 
+
 			elif len(contour_data) == 1:
 				# TODO: check that the smaller side is the one on the top
 				if abs(self.getAspectRatio(rect1) - self.TAPE_ASPECT_RATIO) < self.ASPECT_RATIO_ERROR: # +-  0.5 inches for either edge
@@ -226,4 +227,6 @@ class DataProcess:
 					# one big blob of both of the vision targets,
 					# get the eyes on the prize point for it instead of centers of other things
 					self.angle = self.calcAngles(rect1, rect1, 0, 0)
+			print("cx: " + str(self.cx) + " cy: " + str(self.cy) + "\n")
+			print("appx angle: " + str(self.approximateAngle(self.cx, self.cy)))
 		cv2.imshow("CONTOUR",  self.img)

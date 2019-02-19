@@ -47,7 +47,6 @@ try:
 
     pipe = rs.pipeline()
     config = rs.config()
-    config.set_option(RS2_OPTION_ENABLE_AUTO_EXPOSURE, False);
     config.enable_stream(rs.stream.color, int(WIDTH), int(HEIGHT), rs.format.bgr8, 60) #numbers that work: 6, 15
     config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
     pipe.start(config)
@@ -72,11 +71,12 @@ try:
 
         left = int(dp.cx)
         down = int(dp.cy)
+        # print("cx: " + str(left) + " cy: " + str(down) + "\n")
         # dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
         dist1 = depth.get_distance(int(dp.x1), int(dp.y1))
         dist2 = depth.get_distance(int(dp.x2), int(dp.y2))
         dist = (dist1 + dist2) / 2
-        print("yay " + str(dist))
+        # print("yay " + str(dist))
 
         print("ang: " + str(dp.angle))
 
