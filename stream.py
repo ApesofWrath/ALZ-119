@@ -7,7 +7,7 @@ import numpy as np
 import data_process
 import math
 import sys
-# import cscore as cs
+import cscore as cs
 
 WIDTH = 640
 HEIGHT = 480
@@ -40,10 +40,21 @@ def startNetworkTables():
 
     print("Connected!")
 
-try:
+# TODO: will left side always be dist1 or right side always be dist2?
+# sign changes for respective dingies
+def getOrientationAngle(dist1, dist2, dist_center, yaw):
+    tape_dist = -1.0 # TODO: look up distnace between centers of tapes in meters
+    # Right = +ø
+    # Left = -ø
+    if dist1 > dist2:
+        return (-90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist2 * dist2) / (-2.0 * tape_dist * dist2)))
 
-    # startNetworkTables()
-    # table = NetworkTables.getTable('SmartDashboard')
+    return (alpha = -90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist1 * dist1) / (-2.0 * tape_dist * dist1)))
+
+
+try:
+    startNetworkTables()
+    table = NetworkTables.getTable('SmartDashboard')
 
     pipe = rs.pipeline()
     config = rs.config()
@@ -53,11 +64,11 @@ try:
 
     dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
 
-   # cam = cs.UsbCamera("webcam", 0)
-    # cserver = cs.CameraServer()
+#    cam = cs.UsbCamera("webcam", 0)
+    cserver = cs.CameraServer()
 
-    # src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
-    # cserver.startAutomaticCapture(camera=src)
+    src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
+    cserver.startAutomaticCapture(camera=src)
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
@@ -66,38 +77,36 @@ try:
             continue
 
         img = np.asarray(color.get_data())
+        grip_pipe.process(img)
 
         dp.update(img)
-
         left = int(dp.cx)
         down = int(dp.cy)
-
         # dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
         dist1 = depth.get_distance(int(dp.x1), int(dp.y1))
         dist2 = depth.get_distance(int(dp.x2), int(dp.y2))
         dist = (dist1 + dist2) / 2
-        # print("yay " + str(dist))
-        print("d1: " + str(dist1) + " d2: " + str(dist2))
-        # print("ang: " + str(dp.angle))
+        print("yay " + str(dist))
+
+        print("ang: " + str(dp.angle))
 
         if not dp.isTapeDetected:
             dist = 0
             dp.angle = 0
 
-        # table.putNumber('depth', dist)
-        # table.putNumber('yaw', dp.angle)
-        # print('depth: {d}, yaw: {y}'.format(d=dist, y=dp.angle))
-        # src.putFrame(img)
+        table.putNumber('depth', dist)
+        table.putNumber('yaw', dp.angle)
+        print('depth: {d}, yaw: {y}'.format(d=dist, y=dp.angle))
+        src.putFrame(img)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
             break
 
-except Exception as e:
+finally:
     pipe.stop()
     cv2.destroyAllWindows()
     # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
-    # print("pylibrs.error was thrown when calling %s(%s):\n" % (e.get_failed_function(), e.get_failed_args()))
-    # print("    %s\n", e.what())
-    print(e)
+    print("pylibrs.error was thrown when calling %s(%s):\n" % (e.get_failed_function(), e.get_failed_args()))
+    print("    %s\n", e.what())
     exit(1)
