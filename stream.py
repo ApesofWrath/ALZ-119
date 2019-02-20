@@ -12,6 +12,28 @@ notified = [False]
 
 DS5_product_ids = ["0AD1", "0AD2", "0AD3", "0AD4", "0AD5", "0AF6", "0AFE", "0AFF", "0B00", "0B01", "0B03", "0B07"]
 
+def connectionListener(connected, info):
+
+    print(info, '; Connected=%s' % connected)
+    with cond:
+        notified[0] = True
+        cond.notify()
+
+def startNetworkTables():
+
+    NetworkTables.startClientTeam(668)
+    NetworkTables.initialize(server='10.6.68.2') #roborio must be on this static ip
+    NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
+
+    with cond:
+        print("Waiting")
+        if not notified[0]:
+            cond.wait()
+
+    print("Connected!")
+
+
+
 def find_device_that_supports_advanced_mode():
     ctx = rs.context()
     ds5_dev = rs.device()
@@ -24,6 +46,9 @@ def find_device_that_supports_advanced_mode():
     raise Exception("No device that supports advanced mode was found")
 
 try:
+    startNetworkTables()
+    table = NetworkTables.getTable('SmartDashboard')
+
     dev = find_device_that_supports_advanced_mode()
     advnc_mode = rs.rs400_advanced_mode(dev)
     print("Advanced mode is", "enabled" if advnc_mode.is_enabled() else "disabled")
@@ -59,6 +84,9 @@ try:
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
             break
+
+        is_hatch  = hd.is_hatch
+        table.putBoolean('is hatch', is_hatch)    
 
 
     pipe.stop()
