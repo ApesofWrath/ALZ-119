@@ -40,16 +40,15 @@ def startNetworkTables():
 
     print("Connected!")
 
-# TODO: will left side always be dist1 or right side always be dist2?
-# sign changes for respective dingies
-def getOrientationAngle(dist1, dist2, dist_center, yaw):
+# dist1 will always be the leftmost point and dist2 will always be the rightmost
+def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here because need depths
     tape_dist = -1.0 # TODO: look up distnace between centers of tapes in meters
     # Right = +ø
     # Left = -ø
     if dist1 > dist2:
         return (-90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist2 * dist2) / (-2.0 * tape_dist * dist2)))
 
-    return (alpha = -90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist1 * dist1) / (-2.0 * tape_dist * dist1)))
+    return -(-90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist1 * dist1) / (-2.0 * tape_dist * dist1)))
 
 
 try:
@@ -83,12 +82,22 @@ try:
         left = int(dp.cx)
         down = int(dp.cy)
         # dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
-        dist1 = depth.get_distance(int(dp.x1), int(dp.y1))
-        dist2 = depth.get_distance(int(dp.x2), int(dp.y2))
-        dist = (dist1 + dist2) / 2
-        print("yay " + str(dist))
+        dist1 = 0.0
+        dist2 = 0.0
 
-        print("ang: " + str(dp.angle))
+        # Make sure that dist1 is on the left and dist2 is on the right
+        if dp.x1 < dp.x2:
+            dist1 = depth.get_distance(int(dp.x1), int(dp.y1))
+            dist2 = depth.get_distance(int(dp.x2), int(dp.y2))
+        else:
+            dist2 = depth.get_distance(int(dp.x1), int(dp.y1))
+            dist1 = depth.get_distance(int(dp.x2), int(dp.y2))
+
+        dist = (dist1 + dist2) / 2
+        print("dist: " + str(dist))
+
+        print("yaw ang: " + str(dp.angle))
+        print("exit ang: " + str(getOrientationAngle(dist1, dist2, dist, dp.angle)))
 
         if not dp.isTapeDetected:
             dist = 0
