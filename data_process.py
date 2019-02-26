@@ -33,12 +33,12 @@ class DataProcess:
 
 	# returns the linear horizontal angle from the center of the screen to x, y
 	def approximateAngle(self, x, y):
-		horizantal_conversion = H_FOV / WIDTH
-		return (x - WIDTH / 2) * horizantal_conversion
+		horizantal_conversion = self.H_FOV / self.WIDTH
+		return (x - self.WIDTH / 2) * horizantal_conversion
 
 	# returns the actual angle from the center of the screen to x, y
 	def actualAngle(self, x, y):
-		pixel_width_percentage = (x - self.WIDTH / 2) / (self.WIDTH / 2)
+		pixel_width_percentage = float(x - self.WIDTH / 2) / float(self.WIDTH / 2)
 		return math.degrees(math.atan(pixel_width_percentage * self.SENSOR_WIDTH * 0.5 / self.F_LENGTH))
 
 	# return the mid point of the line connecting the average of each of the top two points of rectangle
@@ -57,6 +57,16 @@ class DataProcess:
 
 		return cx, cy
 
+	def getMidPoint(self, box):
+		totalx = 0
+		totaly = 0
+		print(box[0][0])
+		for i in range(0, 4):
+			totalx += int(box[i][0])
+			totaly += int(box[i][1])
+
+		return totalx / 4.0, totaly / 4.0
+
 	# @param: 2 rectangles and an image to draw the point on
 	def calcAngles(self, box1, box2, offset_x, offset_y):
 		cx1, cy1 = self.getReferencePoint(box1)
@@ -72,7 +82,7 @@ class DataProcess:
 			#print ("Approx Angle: " + str(approximateAngle(cx, cy)))
 			#print ("Actual Angle: " + str(actualAngle(cx, cy)))
 
-	#incorporate into getRefPoint() return value
+	#incorporate into getReferencePoint() return value
 	def __distance__(self, x1, y1, x2, y2):
 		return math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
 
@@ -86,8 +96,12 @@ class DataProcess:
 
 		# figure out which side is the smaller side and
 		if d1 > d2:
+			if d1 == 0:
+				d1 = 0.001
 			return d2 / d1
 
+		if d2 == 0:
+			d2 = 0.001
 		return d1 / d2
 
 	# returns a bounded rectangle from contour_data[max_index] and draws it to @param: self.img
@@ -126,6 +140,7 @@ class DataProcess:
 
 		distance_pixels = min(d1, d2)
 
+		# TODO: fix the /0 check so that it works with both sets of points, not just 1 & 2
 		if p2[0] == p1[0] or p3[0] == p2[0]: # fix divide by zero error
 			slope = (float(p2[1]) - p1[1]) / 0.01
 			angle = 0
@@ -161,8 +176,9 @@ class DataProcess:
 	def getGoalRectangles(self, contour_data):
 		# index1, index2 = len(contour_data) / 2, len(contour_data) / 2 + 1
 		# contour_data = [contour_data[index1], contour_data[index2]]
-		# get the centers of the contours
+		# get the centers of the
 		rects = self.convertToRects(contour_data)
+
 		# print(contour_data)
 		distance_to_center = []
 		for rect in rects:
@@ -187,35 +203,40 @@ class DataProcess:
 		self.pipe.process(im)
 		self.img = im
 		contour_data = self.pipe.find_contours_output
+
 		# print(contour_data)
 		# future boxes for the bounded rectangles
 		rect1 = None
 		rect2 = None
-		# print("about to draw rect")
-		if len(contour_data) > 2:
-			contour_data = self.getGoalRectangles(contour_data)
-		if len(contour_data) >= 1:
-			# Get the rectangle/contour with the largest area
-			areas = [cv2.contourArea(c) for c in contour_data]
-			max_index = numpy.argmax(areas)
+		if contour_data is not None:
+			# print("about to draw rect")
+			if len(contour_data) > 2:
+				contour_data = self.getGoalRectangles(contour_data)
 
-			rect1 = self.generateRect(contour_data, max_index)
-			self.x1, self.y1 = self.getRefPoint(rect1)
+			if len(contour_data) >= 1:
+				# Get the rectangle/contour with the largest area
+				areas = [cv2.contourArea(c) for c in contour_data]
+				max_index = numpy.argmax(areas)
 
-		# Make sure there are 2 rectangles detected
-		if len(contour_data) == 2:
-			max_index = self.nextLargestArea(areas, contour_data, max_index)
-			rect2 = self.generateRect(contour_data, max_index)
-			elf.x2, self.y2 = self.getRefPoint(rect2)
-			self.angle = self.calcAngles(rect1, rect2, 0, 0)
+				rect1 = self.generateRect(contour_data, max_index)
+				self.x1, self.y1 = self.getMidPoint(rect1)
 
-		elif len(contour_data) == 1:
-			# TODO: check that the smaller side is the one on the top
-			if abs(self.getAspectRatio(rect1) - self.TAPE_ASPECT_RATIO) < self.ASPECT_RATIO_ERROR: # +-  0.5 inches for either edge
-				self.oneVisionTapeDetected(rect1)
-			else: #probably won't be applicable, and might cause more hassle than good, but we can decide when testing
-				# one big blob of both of the vision targets,
-				# get the eyes on the prize point for it instead of centers of other things
-				self.angle = self.calcAngles(rect1, rect1, 0, 0)
+			# Make sure there are 2 rectangles detected
+			if len(contour_data) == 2:
+				max_index = self.nextLargestArea(areas, contour_data, max_index)
+				rect2 = self.generateRect(contour_data, max_index)
+				self.x2, self.y2 = self.getMidPoint(rect2)
+				self.angle = self.calcAngles(rect1, rect2, 0, 0)
 
+
+			elif len(contour_data) == 1:
+				# TODO: check that the smaller side is the one on the top
+				if abs(self.getAspectRatio(rect1) - self.TAPE_ASPECT_RATIO) < self.ASPECT_RATIO_ERROR: # +-  0.5 inches for either edge
+					self.oneVisionTapeDetected(rect1)
+				else: #probably won't be applicable, and might cause more hassle than good, but we can decide when testing
+					# one big blob of both of the vision targets,
+					# get the eyes on the prize point for it instead of centers of other things
+					self.angle = self.calcAngles(rect1, rect1, 0, 0)
+			# print("cx: " + str(self.cx) + " cy: " + str(self.cy) + "\n")
+			# print("appx angle: " + str(self.approximateAngle(self.cx, self.cy)))
 		cv2.imshow("CONTOUR",  self.img)
