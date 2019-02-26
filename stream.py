@@ -42,22 +42,28 @@ def startNetworkTables():
 
 # dist1 will always be the leftmost point and dist2 will always be the rightmost
 def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here because need depths
-    tape_dist = 0.2985 # in meters to match other units, 11.75 inches 
+    tape_dist = 0.2985 # in meters to match other units, 11.75 inches
     tape_dist /= 2.0
-    print("dist1: " + str(dist1))
-    print("dist2: " + str(dist2))
-    print("dist_center: " + str(dist_center))
-    print("tape_dist: " + str(tape_dist))
+    # print("dist1: " + str(dist1))
+    # print("dist2: " + str(dist2))
+    # print("dist_center: " + str(dist_center))
+    # print("tape_dist: " + str(tape_dist))
     print("yaw: " + str(yaw))
     # Right = +theta
     # Left = -theta
     if dist2 == 0 or dist1 == 0:
         return -1
 
-    if dist1 > dist2:
-        return (90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist2 * dist2) / (-2.0 * tape_dist * dist2)))
+    cos_expression = (dist * dist - tape_dist * tape_dist - dist2 * dist2) / (-2.0 * tape_dist * dist2)
 
-    return -(90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist1 * dist1) / (-2.0 * tape_dist * dist1)))
+    # out of domain
+    if cos_expression >= 1 or cos_expression <= -1:
+        return -1
+
+    if dist1 > dist2:
+        return (90.0 - yaw - math.degrees(math.acos(cos_expression)))
+
+    return -(90.0 - yaw - math.degrees(math.acos(cos_expression)))
 
 
 try:
