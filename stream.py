@@ -42,7 +42,7 @@ def startNetworkTables():
 
 # dist1 will always be the leftmost point and dist2 will always be the rightmost
 def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here because need depths
-    tape_dist = 0.3 # TODO: look up distnace between centers of tapes in meters
+    tape_dist = 0.2985 # in meters to match other units, 11.75 inches 
     tape_dist /= 2.0
     print("dist1: " + str(dist1))
     print("dist2: " + str(dist2))
