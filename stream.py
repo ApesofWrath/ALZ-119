@@ -47,6 +47,7 @@ def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here becaus
     print("dist1: " + str(dist1))
     print("dist2: " + str(dist2))
     print("dist_center: " + str(dist_center))
+    print("tape_dist: " + str(tape_dist))
     print("yaw: " + str(yaw))
     # Right = +theta
     # Left = -theta
@@ -54,9 +55,9 @@ def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here becaus
         return -1
 
     if dist1 > dist2:
-        return (-90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist2 * dist2) / (-2.0 * tape_dist * dist2)))
+        return (90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist2 * dist2) / (-2.0 * tape_dist * dist2)))
 
-    return -(-90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist1 * dist1) / (-2.0 * tape_dist * dist1)))
+    return -(90.0 - yaw + math.acos((dist * dist - tape_dist * tape_dist - dist1 * dist1) / (-2.0 * tape_dist * dist1)))
 
 
 try:
