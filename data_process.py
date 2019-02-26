@@ -60,7 +60,6 @@ class DataProcess:
 	def getMidPoint(self, box):
 		totalx = 0
 		totaly = 0
-		print(box[0][0])
 		for i in range(0, 4):
 			totalx += int(box[i][0])
 			totaly += int(box[i][1])
