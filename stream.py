@@ -118,6 +118,7 @@ try:
             dist = 0
             dp.angle = 0
 
+        # table.putNumber('exit_angle', exit_angle) UNCOMMENT
         # table.putNumber('depth', dist) UNCOMMENT
         # table.putNumber('yaw', dp.angle) UNCOMMENT
         # print('depth: {d}, yaw: {y}'.format(d=dist, y=dp.angle))
