@@ -134,6 +134,8 @@ try:
         if counter >= 50: # analyze exit angle data in groups of x, should only take a little longer than x milliseconds (waitKey(milliseconds) + procesing time)
             final_exit_angle = dp.noramlizeData(exit_angles)
             table.putNumber('exit_angle', final_exit_angle)
+            counter = 0
+            exit_angles = []
 
         src.putFrame(img)
 
