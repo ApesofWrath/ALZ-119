@@ -15,7 +15,7 @@ def main():
         ret, im = cap.read()
         detection.update(im)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(50) & 0xFF == ord('q'):
             break
 
 if __name__ == "__main__":
