@@ -7,7 +7,7 @@ import numpy as np
 import data_process
 import math
 import sys
-# import cscore as cs  UNCOMMENT
+import cscore as cs
 
 WIDTH = 640
 HEIGHT = 480
@@ -68,8 +68,8 @@ def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here becaus
 
 
 try:
-    # startNetworkTables() UNCOMMENT
-    # table = NetworkTables.getTable('SmartDashboard') UNCOMMENT
+    startNetworkTables()
+    table = NetworkTables.getTable('SmartDashboard')
 
     counter = 0 # used to take intervals of exit angle data
     exit_angles = []
@@ -83,10 +83,10 @@ try:
     dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
 
 #    cam = cs.UsbCamera("webcam", 0)
-    # cserver = cs.CameraServer() UNCOMMENT
+    cserver = cs.CameraServer()
 
-    # src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70) UNCOMMENT
-    # cserver.startAutomaticCapture(camera=src) UNCOMMENT
+    src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
+    cserver.startAutomaticCapture(camera=src)
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
