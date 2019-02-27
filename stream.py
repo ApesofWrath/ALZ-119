@@ -41,6 +41,7 @@ def startNetworkTables():
     print("Connected!")
 
 # dist1 will always be the leftmost point and dist2 will always be the rightmost
+# TODO: does it make sense to return -1 if missed point, or the last valid point
 def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here because need depths
     tape_dist = 0.2985 # in meters to match other units, 11.75 inches
     tape_dist /= 2.0
@@ -69,6 +70,9 @@ def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here becaus
 try:
     # startNetworkTables() UNCOMMENT
     # table = NetworkTables.getTable('SmartDashboard') UNCOMMENT
+
+    counter = 0 # used to take intervals of exit angle data
+    exit_angles = []
 
     pipe = rs.pipeline()
     config = rs.config()
@@ -109,20 +113,30 @@ try:
             dist1 = depth.get_distance(int(dp.x2), int(dp.y2))
 
         dist = (dist1 + dist2) / 2
-        # print("dist: " + str(dist))
 
-        # print("yaw ang: " + str(dp.angle))
-        print("exit ang: " + str(getOrientationAngle(dist1, dist2, dist, dp.angle)))
+        exit_angles.append(getOrientationAngle(dist1, dist2, dist, dp.angle))
+        counter += 1
+
+
+        print("dist: " + str(dist))
+        print("yaw ang: " + str(dp.angle))
+        print("exit ang: " + str(exit_angles[len(exit_angles) - 1]) + "\n")
 
         if not dp.isTapeDetected:
-            dist = 0
-            dp.angle = 0
+            dist = -1
+            dp.angle = -1
 
-        # table.putNumber('exit_angle', exit_angle) UNCOMMENT
-        # table.putNumber('depth', dist) UNCOMMENT
-        # table.putNumber('yaw', dp.angle) UNCOMMENT
-        # print('depth: {d}, yaw: {y}'.format(d=dist, y=dp.angle))
-        # src.putFrame(img)
+
+        table.putNumber('depth', dist)
+        table.putNumber('yaw', dp.angle +)
+
+        # TODO account for -1 issue (repeating, corrupting data)
+        if counter >= 50: # analyze exit angle data in groups of x, should only take a little longer than x milliseconds (waitKey(milliseconds) + procesing time)
+            final_exit_angle = dp.noramlizeData(exit_angles)
+            table.putNumber('exit_angle', final_exit_angle)
+
+        src.putFrame(img)
+
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")

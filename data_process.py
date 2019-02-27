@@ -31,6 +31,21 @@ class DataProcess:
 		self.x2 = 0.0
 		self.y2 = 0.0
 
+	# returns the median of the list excluding outliers
+	def noramlizeData(self, list):
+		list.sort()
+		length = len(list)
+		Q1 = list[length / 4]
+		Q3 = list[3 / 4 * length]
+		IQR = Q3 - Q1
+
+		for i in range(0, len(list)):
+			if list[i] > 1.5 * IQR + Q3 or list[i] < Q1 - 1.5 * IQR: # remove outliers
+				list.pop(i)
+				i -= 1
+
+		return numpy.median(list)
+
 	# returns the linear horizontal angle from the center of the screen to x, y
 	def approximateAngle(self, x, y):
 		horizantal_conversion = self.H_FOV / self.WIDTH
