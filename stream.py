@@ -7,7 +7,7 @@ import numpy as np
 import data_process
 import math
 import sys
-import cscore as cs
+# import cscore as cs UNCOMMENT
 
 WIDTH = 640
 HEIGHT = 480
@@ -45,10 +45,10 @@ def startNetworkTables():
 def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here because need depths
     tape_dist = 0.2985 # in meters to match other units, 11.75 inches
     tape_dist /= 2.0
-    # print("dist1: " + str(dist1))
-    # print("dist2: " + str(dist2))
-    # print("dist_center: " + str(dist_center))
-    # print("tape_dist: " + str(tape_dist))
+    print("dist1: " + str(dist1))
+    print("dist2: " + str(dist2))
+    print("dist_center: " + str(dist_center))
+    print("tape_dist: " + str(tape_dist))
     print("yaw: " + str(yaw))
     # Right = +theta
     # Left = -theta
@@ -62,14 +62,14 @@ def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here becaus
         return -1
 
     if dist1 > dist2:
-        return (90.0 - yaw - math.degrees(math.acos(cos_expression)))
+        return (90.0 - abs(yaw) - math.degrees(math.acos(cos_expression)))
 
-    return -(90.0 - yaw - math.degrees(math.acos(cos_expression)))
+    return -(90.0 - abs(yaw) - math.degrees(math.acos(cos_expression)))
 
 
 try:
-    startNetworkTables()
-    table = NetworkTables.getTable('SmartDashboard')
+    # startNetworkTables()
+    # table = NetworkTables.getTable('SmartDashboard')
 
     counter = 0 # used to take intervals of exit angle data
     exit_angles = []
@@ -83,10 +83,10 @@ try:
     dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
 
 #    cam = cs.UsbCamera("webcam", 0)
-    cserver = cs.CameraServer()
+    # cserver = cs.CameraServer() UNCOMMENT
 
-    src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
-    cserver.startAutomaticCapture(camera=src)
+    # src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70) UNCOMMENT
+    # cserver.startAutomaticCapture(camera=src)UNCOMMENT
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
@@ -116,28 +116,29 @@ try:
 
         exit_angles.append(getOrientationAngle(dist1, dist2, dist, dp.angle))
         counter += 1
+        print(getOrientationAngle(dist1, dist2, dist, dp.angle))
 
-
-        print("dist: " + str(dist))
-        print("yaw ang: " + str(dp.angle))
-        print("exit ang: " + str(exit_angles[len(exit_angles) - 1]) + "\n")
+        # print("dist: " + str(dist))
+        # print("yaw ang: " + str(dp.angle))
+        # print("exit ang: " + str(exit_angles[len(exit_angles) - 1]) + "\n")
 
         if not dp.isTapeDetected:
             dist = -1
             dp.angle = -1
 
 
-        table.putNumber('depth', dist)
-        table.putNumber('yaw', dp.angle +)
+        # table.putNumber('depth', dist) UNCOMMENT
+        # table.putNumber('yaw', dp.angle) UNCOMMENT
 
         # TODO account for -1 issue (repeating, corrupting data)
-        if counter >= 50: # analyze exit angle data in groups of x, should only take a little longer than x milliseconds (waitKey(milliseconds) + procesing time)
-            final_exit_angle = dp.noramlizeData(exit_angles)
-            table.putNumber('exit_angle', final_exit_angle)
+        if counter >= 10: # analyze exit angle data in groups of x, should only take a little longer than x milliseconds (waitKey(milliseconds) + procesing time)
+            final_exit_angle = dp.normalizeData(exit_angles)
+            # print(final_exit_angle)
+            # table.putNumber('exit_angle', final_exit_angle) UNCOMMENT
             counter = 0
             exit_angles = []
 
-        src.putFrame(img)
+        # src.putFrame(img) UNCOMMENT
 
 
         if cv2.waitKey(1) & 0xFF == ord('q'):

@@ -32,14 +32,17 @@ class DataProcess:
 		self.y2 = 0.0
 
 	# returns the median of the list excluding outliers
-	def noramlizeData(self, list):
+	def normalizeData(self, list):
 		list.sort()
+		# print(list)
 		length = len(list)
-		Q1 = list[length / 4]
-		Q3 = list[3 / 4 * length]
+		Q1 = list[int(length / 4)]
+		Q3 = list[int(3 / 4 * length)]
 		IQR = Q3 - Q1
 
-		for i in range(0, len(list)):
+		for i in range(0, length):
+			if i >= len(list): # range is not continually reechecked, need to have bound check
+				break
 			if list[i] > 1.5 * IQR + Q3 or list[i] < Q1 - 1.5 * IQR: # remove outliers
 				list.pop(i)
 				i -= 1
@@ -234,12 +237,16 @@ class DataProcess:
 
 				rect1 = self.generateRect(contour_data, max_index)
 				self.x1, self.y1 = self.getMidPoint(rect1)
+				cv2.rectangle(self.img, (int(self.x1), int(self.y1)), (int(self.x1 + 10), int(self.y1 + 10)),  (100, 50, 50), 10)
+
 
 			# Make sure there are 2 rectangles detected
 			if len(contour_data) == 2:
 				max_index = self.nextLargestArea(areas, contour_data, max_index)
 				rect2 = self.generateRect(contour_data, max_index)
 				self.x2, self.y2 = self.getMidPoint(rect2)
+				cv2.rectangle(self.img, (int(self.x2), int(self.y2)), (int(self.x2 + 10), int(self.y2 + 10)),  (100, 50, 50), 10)
+
 				self.angle = self.calcAngles(rect1, rect2, 0, 0)
 
 
