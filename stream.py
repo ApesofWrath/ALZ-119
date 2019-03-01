@@ -55,16 +55,16 @@ def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here becaus
     if dist2 == 0 or dist1 == 0:
         return -1
 
-    cos_expression = (dist * dist - tape_dist * tape_dist - dist2 * dist2) / (-2.0 * tape_dist * dist2)
+    cos_expression = (dist2 * dist2 - tape_dist * tape_dist - dist_center * dist_center) / (-2.0 * tape_dist * dist_center)
 
     # out of domain
     if cos_expression >= 1 or cos_expression <= -1:
         return -1
 
     if dist1 > dist2:
-        return (90.0 - abs(yaw) - math.degrees(math.acos(cos_expression)))
+        return (90.0 - yaw - math.degrees(math.acos(cos_expression)))
 
-    return -(90.0 - abs(yaw) - math.degrees(math.acos(cos_expression)))
+    return -(90.0 - yaw - math.degrees(math.acos(cos_expression)))
 
 
 try:

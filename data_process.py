@@ -84,7 +84,7 @@ class DataProcess:
 
 		return totalx / 4.0, totaly / 4.0
 
-	# @param: 2 rectangles and an image to draw the point on
+	# @param: 2 rectangles and the offset for 1 tape detected
 	def calcAngles(self, box1, box2, offset_x, offset_y):
 		cx1, cy1 = self.getReferencePoint(box1)
 		cx2, cy2  = self.getReferencePoint(box2)
