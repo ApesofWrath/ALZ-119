@@ -9,6 +9,10 @@ import math
 import sys
 # import cscore as cs UNCOMMENT
 
+
+cos = 0
+zero_error = 0
+
 WIDTH = 640
 HEIGHT = 480
 H_FOV = 53.13 # need to recalculate if change WIDTH dimension  (line up meter stick and get distance then atan)
@@ -43,16 +47,22 @@ def startNetworkTables():
 # dist1 will always be the leftmost point and dist2 will always be the rightmost
 # TODO: does it make sense to return -1 if missed point, or the last valid point
 def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here because need depths
+    global cos, zero_error
     tape_dist = 0.2985 # in meters to match other units, 11.75 inches
     tape_dist /= 2.0
-    print("dist1: " + str(dist1))
-    print("dist2: " + str(dist2))
-    print("dist_center: " + str(dist_center))
-    print("tape_dist: " + str(tape_dist))
-    print("yaw: " + str(yaw) + "\n")
+
+    # print("dist1: " + str(dist1))
+    # print("dist2: " + str(dist2))
+    # print("dist_center: " + str(dist_center))
+    # print("tape_dist: " + str(tape_dist))
+    # print("yaw: " + str(yaw) + "\n")
+    print("zero distance error: "+ str(zero_error))
+    print("cosine error: " + str(cos))
+
     # Right = +theta
     # Left = -theta
     if dist2 == 0 or dist1 == 0:
+        zero_error += 1
         return -1
 
 
@@ -68,6 +78,7 @@ def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here becaus
 
     # check cos domain
     if cos_expression > 1 or cos_expression < -1:
+        cos += 1
         return -1
 
     return sign * (90.0 + yaw - math.degrees(math.acos(cos_expression)))
