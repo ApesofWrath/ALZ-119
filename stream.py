@@ -50,7 +50,7 @@ def startNetworkTables():
 # @return: the direction that it shifted
 def getDistance(x, y, isLeft):
     global dp
-    shift = 0.7 / 2.0 # half of the tape width is 2.75 inches will be negative if on the inside, and positive if on the outside
+    shift = 0.7 # half of the tape width is 2.75 inches will be negative if on the inside, and positive if on the outside
 
 
     if dp.rect1 is None or dp.rect2 is None:
@@ -61,18 +61,14 @@ def getDistance(x, y, isLeft):
     else:
         rx, ry = dp.getReferencePoint(dp.rect2)
 
-    pixel_offset = dp.distance(rx, ry, x, y) / 2 # the pixel distane between the 2 reference point and the center of the tape / 2 (see data_process.py for what ref point is)
+    pixel_offset = dp.distance(rx, ry, x, y) # the pixel distane between the 2 reference point and the center of the tape / 2 (see data_process.py for what ref point is)
     left_dist = depth.get_distance(int(x - pixel_offset), int(y))
     right_dist = depth.get_distance(int(x + pixel_offset), int(y))
 
     # print(pixel_offset)
 
-    dp.drawPoint(100, 100)
     dp.drawPoint(int(x + pixel_offset), int(y))
     dp.drawPoint(int(x - pixel_offset), int(y))
-
-    print("left: " + str(left_dist))
-    print("right: " + str(right_dist))
 
     side = "error"
 
@@ -183,6 +179,8 @@ try:
             dist2, offset_left = getDistance(dp.x1, dp.y1, True)
             dist1, offset_right = getDistance(dp.x2, dp.y2, False)
 
+        print("dist1: "  + str(dist1))
+        print("dist2: " + str(dist2))
         dist = (dist1 + dist2) / 2
 
         exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
