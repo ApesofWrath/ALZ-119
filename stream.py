@@ -191,15 +191,15 @@ try:
             dist2, offset_left = getDistance(dp.x1, dp.y1, True)
             dist1, offset_right = getDistance(dp.x2, dp.y2, False)
 
-        print("dist1: "  + str(dist1) + " off left: " + str(offset_left))
-        print("dist2: " + str(dist2) + " off right: " + str(offset_right))
+        # print("dist1: "  + str(dist1) + " off left: " + str(offset_left))
+        # print("dist2: " + str(dist2) + " off right: " + str(offset_right))
 
         dist = (dist1 + dist2) / 2
 
         exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
         counter += 1
 
-        # print(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
+        print(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
 
         # print("dist: " + str(dist))
         # print("yaw ang: " + str(dp.angle))
