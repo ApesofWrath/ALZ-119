@@ -115,7 +115,7 @@ def getDistance(x, y, isLeft):
 def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, yaw): # has to be here because need depths
     global cos, zero_error
     tape_dist = 0.2985 + offset_left + offset_left # in meters to match other units, 11.75 inches
-    tape_dist /= 2.0
+    # tape_dist /= 2.0
 
     # print("dist1: " + str(dist1))
     # print("dist2: " + str(dist2))
@@ -133,16 +133,18 @@ def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, ya
         zero_error += 1
         return -1
 
-
-    cos_expression = 0
-    sign = 0
+    angleA = 0.0
+    cos_expression = 0.0
+    sign = 0.0
 
     if dist1 > dist2:
-        cos_expression = (dist2 * dist2 - tape_dist * tape_dist - dist_center * dist_center) / (-2.0 * tape_dist * dist_center)
+        cos_expression = (dist2 * dist2 - tape_dist * tape_dist - dist1 * dist1) / (-2.0 * tape_dist * dist1)
         sign = 1.0
+        dp.actualAngle(dp.x1, dp.y1)
     else:
-        cos_expression = (dist1 * dist1 - tape_dist * tape_dist - dist_center * dist_center) / (-2.0 * tape_dist * dist_center)
+        cos_expression = (dist1 * dist1 - tape_dist * tape_dist - dist2 * dist2) / (-2.0 * tape_dist * dist2)
         sign = -1.0
+        dp.actualAngle(dp.x2, dp.y2)
 
     # check cos domain
     if cos_expression > 1 or cos_expression < -1:
