@@ -124,8 +124,8 @@ def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, ya
     tape_dist = 0.2985 + offset_left + offset_right # in meters to match other units, 11.75 inches
     # tape_dist /= 2.0
 
-    # print("dist1: " + str(dist1))
-    # print("dist2: " + str(dist2))
+    print("dist2: " + str(dist2))
+    print("dist1: " + str(dist1))
     # print("offset left: " + str(offset_left))
     # print("offset right: " + str(offset_right))
     # print("dist_center: " + str(dist_center))
@@ -208,8 +208,8 @@ try:
             dist2, offset_left = getDistance(dp.x1, dp.y1, True)
             dist1, offset_right = getDistance(dp.x2, dp.y2, False)
 
-        # print("dist1: "  + str(dist1) + " off left: " + str(offset_left))
-        # print("dist2: " + str(dist2) + " off right: " + str(offset_right))
+        print("dist1: "  + str(dist1) + " off left: " + str(offset_left))
+        print("dist2: " + str(dist2) + " off right: " + str(offset_right))
 
         dist = (dist1 + dist2) / 2
 
@@ -233,7 +233,7 @@ try:
         # TODO account for -1 issue (repeating, corrupting data)
         if counter >= 10: # analyze exit angle data in groups of x, should only take a little longer than x milliseconds (waitKey(milliseconds) + procesing time)
             final_exit_angle = dp.normalizeData(exit_angles)
-            print(final_exit_angle)
+            # print(final_exit_angle)
             # table.putNumber('exit_angle', final_exit_angle) UNCOMMENT
             counter = 0
             exit_angles = []
