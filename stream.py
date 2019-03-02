@@ -46,75 +46,86 @@ def startNetworkTables():
 
     print("Connected!")
 
+# returns depth, x, y
 def getValidDepthToPoint(x, y):
-    max_distance = 1.5
+    max_distance = 1.5 #m
     dist_center = depth.get_distance(int(x), int(y))
 
     if dist_center != 0.0 and dist_center <= max_distance:
-        return dist_center
+        return dist_center, x
 
     counter = 0
     x_left = x - 5
     x_right = x + 5
-    while counter <= 5: # 25 pixel leeway in either direction
-        dp.drawPoint(int(x_left), int(y))
-        dp.drawPoint(int(x_right), int(y))
-
+    while counter <= 9: # 45 pixel leeway in either direction
         dist_left = depth.get_distance(int(x_left), int(y))
         dist_right = depth.get_distance(int(x_right), int(y))
         # print("d left: " + str(dist_left))
         # print("d right: " + str(dist_right))
         if dist_left < max_distance and dist_left != 0.0:
-            print("\n")
-            return dist_left
+            # print("\n")
+            return dist_left, x_left
         if dist_right < max_distance and dist_right != 0.0:
             # print("\n")
-            return dist_right
+            return dist_right, x_right
         x_right += 5
         x_left -= 5
         counter += 1
 
-    return 0.0
+    return 0.0, x
 
 # distance sensor breaks with retreoref tape because of how the distance is calculated (intersection from equation of lines from dual cameras to points in dot map, limited to resolution of dot map)
 # @return: the direction that it shifted
 def getDistance(x, y, isLeft):
     global dp
-    shift = 0.07 # tape length / 2 in meters(2.75 inches)
 
     if dp.rect1 is None or dp.rect2 is None:
         return 0.0, -1
 
-    if isLeft:
-        rx, ry = dp.getReferencePoint(dp.rect1)
-    else:
-        rx, ry = dp.getReferencePoint(dp.rect2)
-
-    pixel_offset = dp.distance(rx, ry, x, y) # the pixel distane between the 2 reference point and the center of the tape / 2 (see data_process.py for what ref point is)
+    dist_tape_pixels = dp.distance(dp.x1, dp.y1, dp.x2, dp.y2)
+    dist_tape_meters = 0.2985 # distance between the mid points of the pieces of tape
+    approx_conversion = dist_tape_meters / dist_tape_pixels # meters /pixel
 
     # distances to left and right offset to a single tape
-    left_dist = getValidDepthToPoint(int(x - pixel_offset), int(y))
-    right_dist = getValidDepthToPoint(int(x + pixel_offset), int(y))
+    depth, x_point = getValidDepthToPoint(int(x), int(y))
+    dp.drawPoint(x_point, y)
 
-    side = "error"
+    change_x = x_point - x
+    offset = change_x * approx_conversion
 
-    if right_dist == 0.0 and left_dist == 0.0:
-        side = "error"
-    elif right_dist == 0.0 or left_dist < right_dist:
-        side = "left"
-    elif left_dist == 0.0 or right_dist < left_dist:
-        side = "right"
+    # right directions are fine, right moves away, left moves closer
+    if isLeft: # if the left tape, left moves away, right moves closer
+        offset *= -1.0
 
-    if side == "right":
-        if isLeft:
-            return right_dist, shift * -1
-        return right_dist, shift
-    elif side == "left":
-        if not isLeft:
-            return left_dist, shift * -1
-        return left_dist, shift
-    elif side == "error":
-        return 0.0, -1
+    return depth, offset
+
+
+    # if isLeft:
+    #     rx, ry = dp.getReferencePoint(dp.rect1)
+    # else:
+    #     rx, ry = dp.getReferencePoint(dp.rect2)
+    #
+    # pixel_offset = dp.distance(rx, ry, x, y) # the pixel distane between the 2 reference point and the center of the tape / 2 (see data_process.py for what ref point is)
+
+
+    #
+    # if right_dist == 0.0 and left_dist == 0.0:
+    #     side = "error"
+    # elif right_dist == 0.0 or left_dist < right_dist:
+    #     side = "left"
+    # elif left_dist == 0.0 or right_dist < left_dist:
+    #     side = "right"
+    #
+    # if side == "right":
+    #     if isLeft:
+    #         return right_dist, shift * -1
+    #     return right_dist, shift
+    # elif side == "left":
+    #     if not isLeft:
+    #         return left_dist, shift * -1
+    #     return left_dist, shift
+    # elif side == "error":
+    #     return 0.0, -1
 
 
 # dist1 will always be the leftmost point and dist2 will always be the rightmost
