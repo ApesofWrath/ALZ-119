@@ -15,9 +15,9 @@ zero_error = 0
 
 WIDTH = 640
 HEIGHT = 480
-H_FOV = 53.13 # need to recalculate if change WIDTH dimension  (line up meter stick and get distance then atan)
+H_FOV = 45.6 # 53.13 empirically # need to recalculate if change WIDTH dimension  (line up meter stick and get distance then atan)
 F_LENGTH = 0.00193 # in meters
-SENSOR_WIDTH = 0.003549 # in meter
+SENSOR_WIDTH = 0.003896 # in meter
 
 grip_pipe = grip.GreenProfile()
 
