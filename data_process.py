@@ -59,6 +59,7 @@ class DataProcess:
 			cv2.rectangle(self.img, (int(x), int(y)), (int(x + 10), int(y + 10)),  (100, 50, 50), 10)
 		else:
 			print("self.img is None")
+		cv2.imshow("CONTOUR",  self.img)
 	# returns the linear horizontal angle from the center of the screen to x, y
 	def approximateAngle(self, x, y):
 		horizantal_conversion = self.H_FOV / self.WIDTH
