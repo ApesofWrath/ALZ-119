@@ -66,6 +66,8 @@ def getValidDepthToPoint(x, y):
             return dist_right
         x_right += 5
         x_left -= 5
+        counter += 1
+    return 0.0
 
 # distance sensor breaks with retreoref tape because of how the distance is calculated (intersection from equation of lines from dual cameras to points in dot map, limited to resolution of dot map)
 # @return: the direction that it shifted
