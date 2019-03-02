@@ -24,6 +24,8 @@ grip_pipe = grip.GreenProfile()
 cond = threading.Condition() #global for network tables
 notified = [False]
 
+dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
+
 def connectionListener(connected, info):
 
     print(info, '; Connected=%s' % connected)
@@ -48,12 +50,29 @@ def startNetworkTables():
 # @return: the direction that it shifted
 def getDistance(x, y, isLeft):
     global dp
-    shift = 0.7 / 2 # half of the tape width is 2.75 inches will be negative if on the inside, and positive if on the outside
-    rx, ry = dp.getReferencePoint(dp.rect1)
+    shift = 0.7 / 2.0 # half of the tape width is 2.75 inches will be negative if on the inside, and positive if on the outside
 
-    pixel_offset = distance(rx, ry, x, y) # the pixel distane between the 2 reference point and the center of the tape / 2 (see data_process.py for what ref point is)
-    left_dist = depth.get_distance(int(x + pixel_offset), int(y))
+
+    if dp.rect1 is None or dp.rect2 is None:
+        return 0.0, -1
+
+    if isLeft:
+        rx, ry = dp.getReferencePoint(dp.rect1)
+    else:
+        rx, ry = dp.getReferencePoint(dp.rect2)
+
+    pixel_offset = dp.distance(rx, ry, x, y) / 2 # the pixel distane between the 2 reference point and the center of the tape / 2 (see data_process.py for what ref point is)
+    left_dist = depth.get_distance(int(x - pixel_offset), int(y))
     right_dist = depth.get_distance(int(x + pixel_offset), int(y))
+
+    # print(pixel_offset)
+
+    dp.drawPoint(100, 100)
+    dp.drawPoint(int(x + pixel_offset), int(y))
+    dp.drawPoint(int(x - pixel_offset), int(y))
+
+    print("left: " + str(left_dist))
+    print("right: " + str(right_dist))
 
     side = "error"
 
@@ -66,23 +85,27 @@ def getDistance(x, y, isLeft):
 
     if side == "right":
         if isLeft:
-            return right, pixel_offset * -1
+            return right_dist, shift * -1
+        return right_dist, shift
     elif side == "left":
         if not isLeft:
-            return left, pixel_offset * -1
+            return left_dist, shift * -1
+        return left_dist, shift
     elif side == "error":
         return 0.0, -1
 
 
 # dist1 will always be the leftmost point and dist2 will always be the rightmost
 # TODO: does it make sense to return -1 if missed point, or the last valid point
-def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, yaw): # has to be here because need depths
+def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, yaw): # has to be here because need depths
     global cos, zero_error
     tape_dist = 0.2985 + offset_left + offset_left # in meters to match other units, 11.75 inches
     tape_dist /= 2.0
 
-    print("dist1: " + str(dist1))
-    print("dist2: " + str(dist2))
+    # print("dist1: " + str(dist1))
+    # print("dist2: " + str(dist2))
+    # print("offset left: " + str(offset_left))
+    # print("offset right: " + str(offset_right))
     # print("dist_center: " + str(dist_center))
     # print("tape_dist: " + str(tape_dist))
     # print("yaw: " + str(yaw) + "\n")
@@ -127,8 +150,6 @@ try:
     config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
     pipe.start(config)
 
-    dp = data_process.DataProcess(grip_pipe, H_FOV, F_LENGTH, SENSOR_WIDTH, WIDTH, HEIGHT)
-
 #    cam = cs.UsbCamera("webcam", 0)
     # cserver = cs.CameraServer() UNCOMMENT
 
@@ -147,20 +168,20 @@ try:
         dp.update(img)
         left = int(dp.cx)
         down = int(dp.cy)
+
         # dist = depth.get_distance(int(WIDTH / 2), int(HEIGHT / 2))
         dist1 = 0.0
         dist2 = 0.0
+        offset_left = 0.0
+        offst_right = 0.0
 
         # Make sure that dist1 is on the left and dist2 is on the right
         if dp.x1 < dp.x2:
-            dist1 = depth.get_distance(int(dp.x1), int(dp.y1))
-            dist2 = depth.get_distance(int(dp.x2), int(dp.y2))
+            dist1, offset_left = getDistance(dp.x1, dp.y1, True)
+            dist2, offset_right = getDistance(dp.x2, dp.y2, False)
         else:
-            dist2 = depth.get_distance(int(dp.x1), int(dp.y1))
-            dist1 = depth.get_distance(int(dp.x2), int(dp.y2))
-
-        dist1, offset_left = getDistance(dist1, True)
-        dist2, offset_right = getDistance(dist2, False)
+            dist2, offset_left = getDistance(dp.x1, dp.y1, True)
+            dist1, offset_right = getDistance(dp.x2, dp.y2, False)
 
         dist = (dist1 + dist2) / 2
 

@@ -53,6 +53,12 @@ class DataProcess:
 
 		return numpy.median(list)
 
+	def drawPoint(self, x, y):
+		#Draw the point on the image
+		if self.img is not None:
+			cv2.rectangle(self.img, (int(x), int(y)), (int(x + 10), int(y + 10)),  (100, 50, 50), 10)
+		else:
+			print("self.img is None")
 	# returns the linear horizontal angle from the center of the screen to x, y
 	def approximateAngle(self, x, y):
 		horizantal_conversion = self.H_FOV / self.WIDTH
@@ -89,9 +95,11 @@ class DataProcess:
 		return totalx / 4.0, totaly / 4.0
 
 	def getRect1(self):
+		print(self.rect1)
 		return self.rect1
 
 	def getRect2(self):
+		print(self.rect2)
 		return self.rect2
 
 
@@ -102,8 +110,8 @@ class DataProcess:
 		self.cx = (cx1 + cx2) / 2 + offset_x
 		self.cy = (cy1 + cy2) / 2 + offset_y
 
-		#Draw the point on the image
-		cv2.rectangle(self.img, (int(self.cx), int(self.cy)), (int(self.cx + 10), int(self.cy + 10)),  (100, 50, 50), 10)
+		self.drawPoint(self.cx, self.cy)
+
 
 		return self.actualAngle(self.cx, self.cy)
 		# For testing
