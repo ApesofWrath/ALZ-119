@@ -191,35 +191,33 @@ try:
             dist2, offset_left = getDistance(dp.x1, dp.y1, True)
             dist1, offset_right = getDistance(dp.x2, dp.y2, False)
 
-        # print("dist1: "  + str(dist1) + " off left: " + str(offset_left))
-        # print("dist2: " + str(dist2) + " off right: " + str(offset_right))
-
         dist = (dist1 + dist2) / 2
 
-        exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
-        counter += 1
+        # uncomment if using below
+                # exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
+                # counter += 1
 
-        print(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
-
-        # print("dist: " + str(dist))
-        # print("yaw ang: " + str(dp.angle))
-        # print("exit ang: " + str(exit_angles[len(exit_angles) - 1]) + "\n")
+        exit_angle = getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle)
+        if abs(exit_angle < 10.0):
+            exit_angle = 0
+        print("exit angle: " + str(exit_angle))
 
         if not dp.isTapeDetected:
             dist = -1
             dp.angle = -1
 
-
         # table.putNumber('depth', dist) UNCOMMENT
         # table.putNumber('yaw', dp.angle) UNCOMMENT
+        # table.putNumber('exit_angle', exit_angle) UNCOMMENT
 
-        # TODO account for -1 issue (repeating, corrupting data)
-        if counter >= 10: # analyze exit angle data in groups of x, should only take a little longer than x milliseconds (waitKey(milliseconds) + procesing time)
-            final_exit_angle = dp.normalizeData(exit_angles)
-            # print(final_exit_angle)
-            # table.putNumber('exit_angle', final_exit_angle) UNCOMMENT
-            counter = 0
-            exit_angles = []
+        # Uncomment if consistency of angles is an issue
+                # TODO account for -1 issue (repeating, corrupting data)
+                # if counter >= 10: # analyze exit angle data in groups of x, should only take a little longer than x milliseconds (waitKey(milliseconds) + procesing time)
+                #     final_exit_angle = dp.normalizeData(exit_angles)
+                #     # print(final_exit_angle)
+                #     # table.putNumber('exit_angle', final_exit_angle) UNCOMMENT
+                #     counter = 0
+                #     exit_angles = []
 
         # src.putFrame(img) UNCOMMENT
 
