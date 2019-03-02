@@ -25,6 +25,10 @@ class DataProcess:
 		self.cy = 0.0
 		self.angle = 0.0
 
+		# for the distance calculations in stream.py
+		self.rect1 = []
+		self.rect2 = []
+
 		# For Getting the depth with missing middle
 		self.x1 = 0.0
 		self.y1 = 0.0
@@ -84,6 +88,13 @@ class DataProcess:
 
 		return totalx / 4.0, totaly / 4.0
 
+	def getRect1(self):
+		return self.rect1
+
+	def getRect2(self):
+		return self.rect2
+
+
 	# @param: 2 rectangles and the offset for 1 tape detected
 	def calcAngles(self, box1, box2, offset_x, offset_y):
 		cx1, cy1 = self.getReferencePoint(box1)
@@ -100,7 +111,7 @@ class DataProcess:
 			#print ("Actual Angle: " + str(actualAngle(cx, cy)))
 
 	#incorporate into getReferencePoint() return value
-	def __distance__(self, x1, y1, x2, y2):
+	def distance(self, x1, y1, x2, y2):
 		return math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
 
 	# Aspect ratio is small/big (should be 2 inches / 5.5 inches if perfect)
@@ -108,8 +119,8 @@ class DataProcess:
 		p1, p2, p3 = box[0], box[1], box[2]
 
 		# Can do this because points are consecutive in cw or ccw order
-		d1 = self.__distance__(p1[0], p1[1], p2[0], p2[1])
-		d2 = self.__distance__(p2[0], p2[1], p3[0], p3[1])
+		d1 = self.distance(p1[0], p1[1], p2[0], p2[1])
+		d2 = self.distance(p2[0], p2[1], p3[0], p3[1])
 
 		# figure out which side is the smaller side and
 		if d1 > d2:
@@ -127,7 +138,6 @@ class DataProcess:
 		box = cv2.boxPoints(rect)
 		box = numpy.int0(box)
 		cv2.drawContours(self.img,[box], 0, (100, 50, 50), 10)
-
 		return box
 
 	# remove the current largest area from the array and return the next largest area
@@ -144,8 +154,8 @@ class DataProcess:
 		cx, cy = self.getReferencePoint(box)
 
 		# Can do this because points are consecutive in cw or ccw order
-		d1 = self.__distance__(p1[0], p1[1], p2[0], p2[1])
-		d2 = self.__distance__(p2[0], p2[1], p3[0], p3[1])
+		d1 = self.distance(p1[0], p1[1], p2[0], p2[1])
+		d2 = self.distance(p2[0], p2[1], p3[0], p3[1])
 		#print("d1: " + str(d1) + " d2: " + str(d2))
 
 		# TODO: simplify to go off of negative vs. positive angles instead of slope (need to know which is above/below to get sign right?)
@@ -260,4 +270,6 @@ class DataProcess:
 					self.angle = self.calcAngles(rect1, rect1, 0, 0)
 			# print("cx: " + str(self.cx) + " cy: " + str(self.cy) + "\n")
 			# print("appx angle: " + str(self.approximateAngle(self.cx, self.cy)))
+		self.rect1 = rect1
+		self.rect2 = rect2
 		cv2.imshow("CONTOUR",  self.img)

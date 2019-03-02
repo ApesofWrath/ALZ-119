@@ -44,20 +44,50 @@ def startNetworkTables():
 
     print("Connected!")
 
+# distance sensor breaks with retreoref tape because of how the distance is calculated (intersection from equation of lines from dual cameras to points in dot map, limited to resolution of dot map)
+# @return: the direction that it shifted
+def getDistance(x, y, isLeft):
+    global dp
+    shift = 0.7 / 2 # half of the tape width is 2.75 inches will be negative if on the inside, and positive if on the outside
+    rx, ry = dp.getReferencePoint(dp.rect1)
+
+    pixel_offset = distance(rx, ry, x, y) # the pixel distane between the 2 reference point and the center of the tape / 2 (see data_process.py for what ref point is)
+    left_dist = depth.get_distance(int(x + pixel_offset), int(y))
+    right_dist = depth.get_distance(int(x + pixel_offset), int(y))
+
+    side = "error"
+
+    if right_dist == 0.0 and left_dist == 0.0:
+        side = "error"
+    elif right_dist == 0.0 or left_dist < right_dist:
+        side = "left"
+    elif left_dist == 0.0 or right_dist < left_dist:
+        side = "right"
+
+    if side == "right":
+        if isLeft:
+            return right, pixel_offset * -1
+    elif side == "left":
+        if not isLeft:
+            return left, pixel_offset * -1
+    elif side == "error":
+        return 0.0, -1
+
+
 # dist1 will always be the leftmost point and dist2 will always be the rightmost
 # TODO: does it make sense to return -1 if missed point, or the last valid point
-def getOrientationAngle(dist1, dist2, dist_center, yaw): # has to be here because need depths
+def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, yaw): # has to be here because need depths
     global cos, zero_error
-    tape_dist = 0.2985 # in meters to match other units, 11.75 inches
+    tape_dist = 0.2985 + offset_left + offset_left # in meters to match other units, 11.75 inches
     tape_dist /= 2.0
 
-    # print("dist1: " + str(dist1))
-    # print("dist2: " + str(dist2))
+    print("dist1: " + str(dist1))
+    print("dist2: " + str(dist2))
     # print("dist_center: " + str(dist_center))
     # print("tape_dist: " + str(tape_dist))
     # print("yaw: " + str(yaw) + "\n")
-    print("zero distance error: "+ str(zero_error))
-    print("cosine error: " + str(cos))
+    # print("zero distance error: "+ str(zero_error))
+    # print("cosine error: " + str(cos))
 
     # Right = +theta
     # Left = -theta
@@ -129,11 +159,15 @@ try:
             dist2 = depth.get_distance(int(dp.x1), int(dp.y1))
             dist1 = depth.get_distance(int(dp.x2), int(dp.y2))
 
+        dist1, offset_left = getDistance(dist1, True)
+        dist2, offset_right = getDistance(dist2, False)
+
         dist = (dist1 + dist2) / 2
 
-        exit_angles.append(getOrientationAngle(dist1, dist2, dist, dp.angle))
+        exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
         counter += 1
-        print(getOrientationAngle(dist1, dist2, dist, dp.angle))
+
+        print(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
 
         # print("dist: " + str(dist))
         # print("yaw ang: " + str(dp.angle))
