@@ -100,34 +100,6 @@ def getDistance(x, y, isLeft):
     return depth, offset
 
 
-    # if isLeft:
-    #     rx, ry = dp.getReferencePoint(dp.rect1)
-    # else:
-    #     rx, ry = dp.getReferencePoint(dp.rect2)
-    #
-    # pixel_offset = dp.distance(rx, ry, x, y) # the pixel distane between the 2 reference point and the center of the tape / 2 (see data_process.py for what ref point is)
-
-
-    #
-    # if right_dist == 0.0 and left_dist == 0.0:
-    #     side = "error"
-    # elif right_dist == 0.0 or left_dist < right_dist:
-    #     side = "left"
-    # elif left_dist == 0.0 or right_dist < left_dist:
-    #     side = "right"
-    #
-    # if side == "right":
-    #     if isLeft:
-    #         return right_dist, shift * -1
-    #     return right_dist, shift
-    # elif side == "left":
-    #     if not isLeft:
-    #         return left_dist, shift * -1
-    #     return left_dist, shift
-    # elif side == "error":
-    #     return 0.0, -1
-
-
 # dist1 will always be the leftmost point and dist2 will always be the rightmost
 # TODO: does it make sense to return -1 if missed point, or the last valid point
 def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, yaw): # has to be here because need depths
