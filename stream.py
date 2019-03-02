@@ -46,12 +46,32 @@ def startNetworkTables():
 
     print("Connected!")
 
+def getValidDepthToPoint(x, y):
+    max_distance = 1.5
+    dist_center = depth.get_distance(int(x), int(y))
+    if dist_center != 0.0 and dist_center <= max_distance:
+        return dist_center
+
+    counter = 0
+    x_left = x - 5
+    x_right = x + 5
+    dist_left = depth.get_distance(int(x_left), int(y))
+    dist_right = depth.get_distance(int(x_right), int(y))
+    while counter <= 9:
+        if dist_left < max_distance and dist_left != 0.0:
+            dp.drawPoint(int(x_left), int(y))
+            return dist_left
+        if dist_right < max_distance and dist_right != 0.0:
+            dp.drawPoint(int(x_right), int(y))
+            return dist_right
+        x_right += 5
+        x_left -= 5
+
 # distance sensor breaks with retreoref tape because of how the distance is calculated (intersection from equation of lines from dual cameras to points in dot map, limited to resolution of dot map)
 # @return: the direction that it shifted
 def getDistance(x, y, isLeft):
     global dp
-    shift = 0.7 # half of the tape width is 2.75 inches will be negative if on the inside, and positive if on the outside
-
+    shift = 0.07 # tape length / 2 in meters(2.75 inches)
 
     if dp.rect1 is None or dp.rect2 is None:
         return 0.0, -1
@@ -62,13 +82,10 @@ def getDistance(x, y, isLeft):
         rx, ry = dp.getReferencePoint(dp.rect2)
 
     pixel_offset = dp.distance(rx, ry, x, y) # the pixel distane between the 2 reference point and the center of the tape / 2 (see data_process.py for what ref point is)
-    left_dist = depth.get_distance(int(x - pixel_offset), int(y))
-    right_dist = depth.get_distance(int(x + pixel_offset), int(y))
 
-    # print(pixel_offset)
-
-    dp.drawPoint(int(x + pixel_offset), int(y))
-    dp.drawPoint(int(x - pixel_offset), int(y))
+    # distances to left and right offset to a single tape
+    left_dist = getValidDepthToPoint(int(x - pixel_offset), int(y))
+    right_dist = getValidDepthToPoint(int(x + pixel_offset), int(y))
 
     side = "error"
 
