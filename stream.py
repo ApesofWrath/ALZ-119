@@ -49,24 +49,31 @@ def startNetworkTables():
 def getValidDepthToPoint(x, y):
     max_distance = 1.5
     dist_center = depth.get_distance(int(x), int(y))
+
     if dist_center != 0.0 and dist_center <= max_distance:
         return dist_center
 
     counter = 0
     x_left = x - 5
     x_right = x + 5
-    dist_left = depth.get_distance(int(x_left), int(y))
-    dist_right = depth.get_distance(int(x_right), int(y))
-    while counter <= 9:
+    while counter <= 5: # 25 pixel leeway in either direction
+        dp.drawPoint(int(x_left), int(y))
+        dp.drawPoint(int(x_right), int(y))
+
+        dist_left = depth.get_distance(int(x_left), int(y))
+        dist_right = depth.get_distance(int(x_right), int(y))
+        # print("d left: " + str(dist_left))
+        # print("d right: " + str(dist_right))
         if dist_left < max_distance and dist_left != 0.0:
-            dp.drawPoint(int(x_left), int(y))
+            print("\n")
             return dist_left
         if dist_right < max_distance and dist_right != 0.0:
-            dp.drawPoint(int(x_right), int(y))
+            # print("\n")
             return dist_right
         x_right += 5
         x_left -= 5
         counter += 1
+
     return 0.0
 
 # distance sensor breaks with retreoref tape because of how the distance is calculated (intersection from equation of lines from dual cameras to points in dot map, limited to resolution of dot map)
@@ -114,7 +121,7 @@ def getDistance(x, y, isLeft):
 # TODO: does it make sense to return -1 if missed point, or the last valid point
 def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, yaw): # has to be here because need depths
     global cos, zero_error
-    tape_dist = 0.2985 + offset_left + offset_left # in meters to match other units, 11.75 inches
+    tape_dist = 0.2985 + offset_left + offset_right # in meters to match other units, 11.75 inches
     # tape_dist /= 2.0
 
     # print("dist1: " + str(dist1))
@@ -131,6 +138,7 @@ def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, ya
     # Left = -theta
     if dist2 == 0 or dist1 == 0:
         zero_error += 1
+        print("DIST 0 ERROR")
         return -1
 
     angleA = 0.0
@@ -148,10 +156,10 @@ def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, ya
 
     # check cos domain
     if cos_expression > 1 or cos_expression < -1:
-        cos += 1
+        print("COS DOMAIN ERROR: " + str(cos_expression))
         return -1
 
-    return sign * (90.0 + yaw - math.degrees(math.acos(cos_expression)))
+    return sign * (180.0 - (90 + abs(angleA)) - math.degrees(math.acos(cos_expression)))
 
 
 try:
@@ -200,14 +208,15 @@ try:
             dist2, offset_left = getDistance(dp.x1, dp.y1, True)
             dist1, offset_right = getDistance(dp.x2, dp.y2, False)
 
-        print("dist1: "  + str(dist1))
-        print("dist2: " + str(dist2))
+        # print("dist1: "  + str(dist1) + " off left: " + str(offset_left))
+        # print("dist2: " + str(dist2) + " off right: " + str(offset_right))
+
         dist = (dist1 + dist2) / 2
 
         exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
         counter += 1
 
-        print(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
+        # print(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
 
         # print("dist: " + str(dist))
         # print("yaw ang: " + str(dp.angle))
@@ -224,7 +233,7 @@ try:
         # TODO account for -1 issue (repeating, corrupting data)
         if counter >= 10: # analyze exit angle data in groups of x, should only take a little longer than x milliseconds (waitKey(milliseconds) + procesing time)
             final_exit_angle = dp.normalizeData(exit_angles)
-            # print(final_exit_angle)
+            print(final_exit_angle)
             # table.putNumber('exit_angle', final_exit_angle) UNCOMMENT
             counter = 0
             exit_angles = []
