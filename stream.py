@@ -198,9 +198,9 @@ try:
 
         print("DIST: " + str(dist))
         if dist != 0 and dist1 != 0 and dist2 != 0:
-            file.write(dist1)
-            file.write(dist2)
-            file.write(dist)
+            file.write(str(dist1))
+            file.write(str(dist2))
+            file.write(str(dist))
             file.write("\n")
 
         # uncomment if using below
