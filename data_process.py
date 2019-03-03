@@ -59,17 +59,28 @@ class DataProcess:
 		Bout = 90 - B
 		Aout = 90 - A
 
-		# real points, bx and by are pixel coordiantes
-		b_x = distB * math.cos(Bout)
-		b_y = distB * math.sin(Bout)
-		a_x = distA * math.cos(Aout)
-		a_y = distA * math.sin(Aout)
+		# real unit points, bx, by, etc. are pixel coordiantes
+		b_x = distB * math.cos(math.radians(Bout))
+		b_y = distB * math.sin(math.radians(Bout))
+		a_x = distA * math.cos(math.radians(Aout))
+		a_y = distA * math.sin(math.radians(Aout))
 
 		mid_x = (b_x + a_x) / 2
 		mid_y = (b_y + a_y) / 2
-		# return (b_x + a_x) / 2, (b_y + a_y) / 2
-		# return (b_y + a_y) / 2
-		return sqrt(mid_x * mid_x + mid_y * mid_y) # beacuse 0,0 is camera
+
+		print("B: " + str(B))
+		print("A: " + str(A))
+		print("distA: " + str(distA))
+		print("distB: " + str(distB))
+		print("A out: " + str(Aout))
+		print("B out: " + str(Bout))
+
+		print('b_x: ' + str(b_x))
+		print('b_y: ' + str(b_y))
+		print('a_x: ' + str(a_x))
+		print('a_y: ' + str(a_y))
+
+		return (mid_x ** 2 + mid_y ** 2) ** (0.5) # beacuse 0,0 is camera
 
 
 

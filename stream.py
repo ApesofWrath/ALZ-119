@@ -107,8 +107,8 @@ def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, ya
     tape_dist = 0.2985 + offset_left + offset_right # in meters to match other units, 11.75 inches
     # tape_dist /= 2.0
 
-    print("dist2: " + str(dist2))
-    print("dist1: " + str(dist1))
+    # print("dist2: " + str(dist2))
+    # print("dist1: " + str(dist1))
     # print("offset left: " + str(offset_left))
     # print("offset right: " + str(offset_right))
     # print("dist_center: " + str(dist_center))
@@ -193,7 +193,7 @@ try:
         else:
             dist2, offset_left = getDistance(dp.x1, dp.y1, True)
             dist1, offset_right = getDistance(dp.x2, dp.y2, False)
-            dist = dp.getCenterDistance(dist1, dp.x2, dp.y2, dist2, dp.x1, dp.y1)
+            dist = dp.getCenterDistance(dist2, dp.x2, dp.y2, dist1, dp.x1, dp.y1)
 
         print("DIST: " + str(dist))
 
@@ -225,6 +225,7 @@ try:
 
         # src.putFrame(img) UNCOMMENT
 
+        print("\n")
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
