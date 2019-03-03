@@ -65,8 +65,11 @@ class DataProcess:
 		a_x = distA * math.cos(Aout)
 		a_y = distA * math.sin(Aout)
 
+		mid_x = (b_x + a_x) / 2
+		mid_y = (b_y + a_y) / 2
 		# return (b_x + a_x) / 2, (b_y + a_y) / 2
-		return (b_y + a_y) / 2
+		# return (b_y + a_y) / 2
+		return sqrt(mid_x * mid_x + mid_y * mid_y) # beacuse 0,0 is camera
 
 
 
