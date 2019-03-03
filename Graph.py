@@ -1,10 +1,7 @@
 import plotly
 import plotly.graph_objs as go
 from plotly.offline import *
-
-# Create random data with numpy
 import numpy as np
-
 
 def file_len(fname):
     with open(fname) as f:
