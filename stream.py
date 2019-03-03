@@ -189,13 +189,13 @@ try:
         if dp.x1 < dp.x2:
             dist1, offset_left = getDistance(dp.x1, dp.y1, True)
             dist2, offset_right = getDistance(dp.x2, dp.y2, False)
-            dist = dp.getCenterDistance(dist1, self.x1, self.y1, dist2, self.x2, self.y2)
+            dist = dp.getCenterDistance(dist1, dp.x1, dp.y1, dist2, dp.x2, dp.y2)
         else:
             dist2, offset_left = getDistance(dp.x1, dp.y1, True)
             dist1, offset_right = getDistance(dp.x2, dp.y2, False)
-            dist = dp.getCenterDistance(dist1, self.x2, self.y2, dist2, self.x1, self.y1)
+            dist = dp.getCenterDistance(dist1, dp.x2, dp.y2, dist2, dp.x1, dp.y1)
 
-        dist = (dist1 + dist2) / 2
+        print("DIST: " + str(dist))
 
         # uncomment if using below
                 # exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))

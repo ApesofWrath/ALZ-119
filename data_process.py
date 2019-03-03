@@ -65,7 +65,8 @@ class DataProcess:
 		a_x = distA * math.cos(Aout)
 		a_y = distA * math.sin(Aout)
 
-		return (b_x + a_x) / 2, (b_y + a_y) / 2
+		# return (b_x + a_x) / 2, (b_y + a_y) / 2
+		return (b_y + a_y) / 2
 
 
 
