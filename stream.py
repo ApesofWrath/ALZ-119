@@ -9,6 +9,7 @@ import math
 import sys
 # import cscore as cs UNCOMMENT
 
+file = open("graphing_data.txt", 'w') # Remove after testing
 
 cos = 0
 zero_error = 0
@@ -196,6 +197,11 @@ try:
             dist = dp.getCenterDistance(dist2, dp.x2, dp.y2, dist1, dp.x1, dp.y1)
 
         print("DIST: " + str(dist))
+        if dist != 0 and dist1 != 0 and dist2 != 0:
+            file.write(dist1)
+            file.write(dist2)
+            file.write(dist)
+            file.write("\n")
 
         # uncomment if using below
                 # exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
@@ -234,6 +240,7 @@ try:
 except Exception as e:
     print(e)
 finally:
+    file.close()
     pipe.stop()
     cv2.destroyAllWindows()
     # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
