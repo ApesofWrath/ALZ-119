@@ -53,6 +53,22 @@ class DataProcess:
 
 		return numpy.median(list)
 
+	def getCenterDistance(self, distA, ax, ay, distB, bx, by):
+		A = self.actualAngle(ax, ay)
+		B = self.actualAngle(bx, by)
+		Bout = 90 - B
+		Aout = 90 - A
+
+		# real points, bx and by are pixel coordiantes
+		b_x = distB * math.cos(Bout)
+		b_y = distB * math.sin(Bout)
+		a_x = distA * math.cos(Aout)
+		a_y = distA * math.sin(Aout)
+
+		return (b_x + a_x) / 2, (b_y + a_y) / 2
+
+
+
 	def drawPoint(self, x, y):
 		#Draw the point on the image
 		if self.img is not None:
