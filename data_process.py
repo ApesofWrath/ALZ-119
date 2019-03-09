@@ -68,17 +68,17 @@ class DataProcess:
 		mid_x = (b_x + a_x) / 2
 		mid_y = (b_y + a_y) / 2
 
-		print("B: " + str(B))
-		print("A: " + str(A))
-		print("distA: " + str(distA))
-		print("distB: " + str(distB))
-		print("A out: " + str(Aout))
-		print("B out: " + str(Bout))
-
-		print('b_x: ' + str(b_x))
-		print('b_y: ' + str(b_y))
-		print('a_x: ' + str(a_x))
-		print('a_y: ' + str(a_y))
+		# print("B: " + str(B))
+		# print("A: " + str(A))
+		# print("distA: " + str(distA))
+		# print("distB: " + str(distB))
+		# print("A out: " + str(Aout))
+		# print("B out: " + str(Bout))
+		#
+		# print('b_x: ' + str(b_x))
+		# print('b_y: ' + str(b_y))
+		# print('a_x: ' + str(a_x))
+		# print('a_y: ' + str(a_y))
 
 		return (mid_x ** 2 + mid_y ** 2) ** (0.5) # beacuse 0,0 is camera
 

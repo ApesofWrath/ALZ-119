@@ -206,9 +206,10 @@ try:
                 # counter += 1
 
         exit_angle = getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle)
-        if abs(exit_angle < 10.0):
+        print("exit angle before: " + str(exit_angle))
+        if abs(exit_angle) < 10.0:
             exit_angle = 0
-        print("exit angle: " + str(exit_angle))
+        print("exit angle after: " + str(exit_angle))
 
         if not dp.isTapeDetected:
             dist = -1
