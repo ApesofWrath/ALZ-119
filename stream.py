@@ -197,9 +197,9 @@ try:
             dist = dp.getCenterDistance(dist2, dp.x2, dp.y2, dist1, dp.x1, dp.y1)
 
         print("DIST: " + str(dist))
-        if dist != 0 and dist1 != 0 and dist2 != 0:
-            file.write(str(dp.cx) + " ")
-            file.write(str(dp.angle) + "\n")
+        # if dist != 0 and dist1 != 0 and dist2 != 0:
+        #     file.write(str(dp.cx) + " ")
+        #     file.write(str(dp.angle) + "\n")
 
         # uncomment if using below
                 # exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
