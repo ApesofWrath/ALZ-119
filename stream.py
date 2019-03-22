@@ -10,6 +10,7 @@ import sys
 import cscore as cs
 import os
 
+
 file = open("log.txt", 'w') # Remove after testing
 
 WIDTH = 640
@@ -36,20 +37,42 @@ def startNetworkTables():
     NetworkTables.startClientTeam(668)
     NetworkTables.initialize(server='10.6.68.2') #roborio must be on this static ip
     NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
-
     with cond:
         print("Waiting")
         if not notified[0]:
-            cond.wait()
+            cond.wait(timeout=300.0)
 
     print("Connected!")
 
 
-def reboot(e):
-    file.write()
-    os.system("reboot")
+def reboot(e, succeed):
+    counters = open("~/counters.txt", "r+")
+    logfile = open("~/logfile.txt", "r+")
+    try: ss,es = map(lambda x: int(x[:-2]),counter)
+    except: ss,es = 0, 0
+    logfile.seek(0)
+    if succeed == True:
+        ss += 1
+        f_ = "Success=:)"
 
+    else:
+        es += 1
+        f_ = "Failure=:("
 
+    logfile.write("""
+    ={n}={f}=====================================================
+    """.format(n=ss+es+1, f=f_))
+    logfile.write(e)
+    logfile.close()
+    counters.seek(0)
+    counters.truncate()
+    counters.write(str(ss) + "\n")
+    counters.write(str(es) + "\n")
+    counters.stop()
+    os.system("echo I LIKE FIRSTS LITTLE ROBOTIC PONIES ; sudo -S reboot")
+
+class ItsFine(Exception):
+    pass
 
 try:
     startNetworkTables()
@@ -81,16 +104,16 @@ try:
         table.putNumber('depth', dist)
         src.putFrame(img)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            print("leave")
-            break
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        print("leave")
+        break
 
 except Exception as e:
-    reboot(e)
+    reboot(e, False)
 finally:
     pipe.stop()
     cv2.destroyAllWindows()
-    file.close()
+    reboot(ItsFine("Yay!"), False)
     # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
     # print("pylibrs.error was thrown when calling %s(%s):\n" % (e.get_failed_function(), e.get_failed_args()))
     # print("    %s\n", e.what())
