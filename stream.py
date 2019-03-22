@@ -108,8 +108,9 @@ def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, ya
     tape_dist = 0.2985 + offset_left + offset_right # in meters to match other units, 11.75 inches
     # tape_dist /= 2.0
 
-    # print("dist2: " + str(dist2))
-    # print("dist1: " + str(dist1))
+    print("dist2: " + str(dist2))
+    print("dist1: " + str(dist1))
+
     # print("offset left: " + str(offset_left))
     # print("offset right: " + str(offset_right))
     # print("dist_center: " + str(dist_center))
@@ -120,9 +121,11 @@ def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, ya
 
     # Right = +theta
     # Left = -theta
-    if dist2 == 0 or dist1 == 0:
+    if float(dist2) == 0.0 or float(dist1) == 0.0:
         zero_error += 1
-        print("DIST 0 ERROR")
+        print("DIST ERROR")
+        print(float(dist2) == 0.0)
+        print(dist2 == 0)
         return -1
 
     angleA = 0.0
@@ -153,9 +156,10 @@ try:
     counter = 0 # used to take intervals of exit angle data
     exit_angles = []
 
+
     pipe = rs.pipeline()
     config = rs.config()
-    config.enable_stream(rs.stream.color, int(WIDTH), int(HEIGHT), rs.format.bgr8, 60) #numbers that work: 6, 15
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 60) #numbers that work: 6, 15
     config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
     pipe.start(config)
 
@@ -205,7 +209,7 @@ try:
                 # exit_angles.append(getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle))
                 # counter += 1
 
-        exit_angle = getOrientationAngle(dist1, dist2, offset_left, offset_right, dist, dp.angle)
+        exit_angle = getOrientationAngle(float(dist1), float(dist2), offset_left, offset_right, dist, dp.angle)
         print("exit angle before: " + str(exit_angle))
         if abs(exit_angle) < 10.0:
             exit_angle = 0
