@@ -49,7 +49,7 @@ def startNetworkTables():
 
 # returns depth, x, y
 def getValidDepthToPoint(x, y):
-    max_distance = 1.5 #m
+    max_distance = 2.0 #m
     dist_center = depth.get_distance(int(x), int(y))
 
     if dist_center != 0.0 and dist_center <= max_distance:
@@ -103,13 +103,16 @@ def getDistance(x, y, isLeft):
 
 # dist1 will always be the leftmost point and dist2 will always be the rightmost
 # TODO: does it make sense to return -1 if missed point, or the last valid point
-def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, yaw): # has to be here because need depths
+def getOrientationAngle(left_dist, right_dist, offset_left, offset_right, dist_center, yaw): # has to be here because need depths
     global cos, zero_error
     tape_dist = 0.2985 + offset_left + offset_right # in meters to match other units, 11.75 inches
     # tape_dist /= 2.0
 
-    print("dist2: " + str(dist2))
-    print("dist1: " + str(dist1))
+    print("dist2: " + str(right_dist))
+    print("dist1: " + str(left_dist))
+
+    left_dist = 1.0
+    right_dist = 1.2
 
     # print("offset left: " + str(offset_left))
     # print("offset right: " + str(offset_right))
@@ -121,23 +124,23 @@ def getOrientationAngle(dist1, dist2, offset_left, offset_right, dist_center, ya
 
     # Right = +theta
     # Left = -theta
-    if float(dist2) == 0.0 or float(dist1) == 0.0:
+    if float(right_dist) == 0.0 or float(left_dist) == 0.0:
         zero_error += 1
         print("DIST ERROR")
-        print(float(dist2) == 0.0)
-        print(dist2 == 0)
+        print(float(left_dist) == 0.0)
+        print(right_dist == 0)
         return -1
 
     angleA = 0.0
     cos_expression = 0.0
     sign = 0.0
 
-    if dist1 > dist2:
-        cos_expression = (dist2 * dist2 - tape_dist * tape_dist - dist1 * dist1) / (-2.0 * tape_dist * dist1)
+    if left_dist > right_dist:
+        cos_expression = (right_dist * right_dist - tape_dist * tape_dist - left_dist * left_dist) / (-2.0 * tape_dist * left_dist)
         sign = 1.0
         dp.actualAngle(dp.x1, dp.y1)
     else:
-        cos_expression = (dist1 * dist1 - tape_dist * tape_dist - dist2 * dist2) / (-2.0 * tape_dist * dist2)
+        cos_expression = (left_dist * left_dist - tape_dist * tape_dist - right_dist * right_dist) / (-2.0 * tape_dist * right_dist)
         sign = -1.0
         dp.actualAngle(dp.x2, dp.y2)
 
