@@ -56,9 +56,9 @@ def getValidDepthToPoint(x, y):
         return dist_center, x
 
     counter = 0
-    x_left = x - 5
-    x_right = x + 5
-    while counter <= 15: # 45 pixel leeway in either direction
+    x_left = x - 1
+    x_right = x + 1
+    while counter <= 50: # 50 pixel leeway in either direction
         dist_left = depth.get_distance(int(x_left), int(y))
         dist_right = depth.get_distance(int(x_right), int(y))
         # print("d left: " + str(dist_left))
@@ -69,8 +69,8 @@ def getValidDepthToPoint(x, y):
         if dist_right < max_distance and dist_right != 0.0:
             # print("\n")
             return dist_right, x_right
-        x_right += 5
-        x_left -= 5
+        x_right += 1
+        x_left -= 1
         counter += 1
 
     return 0.0, x
