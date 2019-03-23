@@ -1,7 +1,7 @@
 import cv2
 import numpy
 import math
-from aenum import Enum
+from enum import Enum
 
 class GreenProfile:
     """
@@ -12,9 +12,9 @@ class GreenProfile:
         """initializes all values to presets or None if need to be set
         """
 
-        self.__hsv_threshold_hue = [84.17266187050359, 97.06484641638228]
-        self.__hsv_threshold_saturation = [63.94441123229486, 255.0]
-        self.__hsv_threshold_value = [162.81474820143882, 255.0]
+        self.__hsv_threshold_hue = [64.74820143884892, 127.68273398291939]
+        self.__hsv_threshold_saturation = [52.74280575539568, 233.24232081911265]
+        self.__hsv_threshold_value = [194.91906474820144, 255.0]
 
         self.hsv_threshold_output = None
 
@@ -43,7 +43,6 @@ class GreenProfile:
         """
         Runs the pipeline and sets all outputs to new values.
         """
-        #source0 = cv2.cvtColor(source0, cv2.COLOR_RGB2BGR) #realsense outputs rgb
         # Step HSV_Threshold0:
         self.__hsv_threshold_input = source0
         (self.hsv_threshold_output) = self.__hsv_threshold(self.__hsv_threshold_input, self.__hsv_threshold_hue, self.__hsv_threshold_saturation, self.__hsv_threshold_value)
@@ -126,7 +125,7 @@ class GreenProfile:
         else:
             mode = cv2.RETR_LIST
         method = cv2.CHAIN_APPROX_SIMPLE
-        contours, hierarchy = cv2.findContours(input, mode=mode, method=method)
+        im2, contours, hierarchy =cv2.findContours(input, mode=mode, method=method)
         return contours
 
 
