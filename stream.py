@@ -7,7 +7,7 @@ import numpy as np
 import data_process
 import math
 import sys
-# import cscore as cs UNCOMMENT
+import cscore as cs
 
 file = open("graphing_data.txt", 'w') # Remove after testing
 
@@ -58,7 +58,7 @@ def getValidDepthToPoint(x, y):
     counter = 0
     x_left = x - 5
     x_right = x + 5
-    while counter <= 9: # 45 pixel leeway in either direction
+    while counter <= 15: # 45 pixel leeway in either direction
         dist_left = depth.get_distance(int(x_left), int(y))
         dist_right = depth.get_distance(int(x_right), int(y))
         # print("d left: " + str(dist_left))
@@ -111,8 +111,8 @@ def getOrientationAngle(left_dist, right_dist, offset_left, offset_right, dist_c
     print("dist2: " + str(right_dist))
     print("dist1: " + str(left_dist))
 
-    left_dist = 1.0
-    right_dist = 1.2
+    # left_dist = 1.0
+    # right_dist = 1.2
 
     # print("offset left: " + str(offset_left))
     # print("offset right: " + str(offset_right))
@@ -153,8 +153,8 @@ def getOrientationAngle(left_dist, right_dist, offset_left, offset_right, dist_c
 
 
 try:
-    # startNetworkTables()
-    # table = NetworkTables.getTable('SmartDashboard')
+    startNetworkTables()
+    table = NetworkTables.getTable('SmartDashboard')
 
     counter = 0 # used to take intervals of exit angle data
     exit_angles = []
@@ -164,13 +164,15 @@ try:
     config = rs.config()
     config.enable_stream(rs.stream.color, int(WIDTH), int(HEIGHT), rs.format.bgr8, 60) #numbers that work: 6, 15
     config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
-    pipe.start(config)
+    prof = pipe.start(config)
+    s = prof.get_device().query_sensors()[1]
+    s.set_option(rs.option.exposure, 225)
 
 #    cam = cs.UsbCamera("webcam", 0)
-    # cserver = cs.CameraServer() UNCOMMENT
+    cserver = cs.CameraServer()
 
-    # src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70) UNCOMMENT
-    # cserver.startAutomaticCapture(camera=src)UNCOMMENT
+    src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
+    cserver.startAutomaticCapture(camera=src)
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
@@ -199,8 +201,8 @@ try:
             dist2, offset_right = getDistance(dp.x2, dp.y2, False)
             dist = dp.getCenterDistance(dist1, dp.x1, dp.y1, dist2, dp.x2, dp.y2)
         else:
-            dist2, offset_left = getDistance(dp.x1, dp.y1, True)
-            dist1, offset_right = getDistance(dp.x2, dp.y2, False)
+            dist1, offset_left = getDistance(dp.x1, dp.y1, False)
+            dist2, offset_right = getDistance(dp.x2, dp.y2, True)
             dist = dp.getCenterDistance(dist2, dp.x2, dp.y2, dist1, dp.x1, dp.y1)
 
         print("DIST: " + str(dist))
@@ -222,9 +224,9 @@ try:
             dist = -1
             dp.angle = -1
 
-        # table.putNumber('depth', dist) UNCOMMENT
-        # table.putNumber('yaw', dp.angle) UNCOMMENT
-        # table.putNumber('exit_angle', exit_angle) UNCOMMENT
+        table.putNumber('depth', dist)
+        table.putNumber('yaw', dp.angle)
+        table.putNumber('exit_angle', exit_angle)
 
         # Uncomment if consistency of angles is an issue
                 # TODO account for -1 issue (repeating, corrupting data)
@@ -235,7 +237,7 @@ try:
                 #     counter = 0
                 #     exit_angles = []
 
-        # src.putFrame(img) UNCOMMENT
+        src.putFrame(img)
 
         print("\n")
 
