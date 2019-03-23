@@ -111,8 +111,8 @@ def getOrientationAngle(left_dist, right_dist, offset_left, offset_right, dist_c
     print("dist2: " + str(right_dist))
     print("dist1: " + str(left_dist))
 
-    left_dist = 1.0
-    right_dist = 1.2
+    # left_dist = 1.0
+    # right_dist = 1.2
 
     # print("offset left: " + str(offset_left))
     # print("offset right: " + str(offset_right))
@@ -164,7 +164,9 @@ try:
     config = rs.config()
     config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 60) #numbers that work: 6, 15
     config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
-    pipe.start(config)
+    prof = pipe.start(config)
+    s = prof.get_device().query_sensors()[1]
+    s.set_option(rs.option.exposure, 225)
 
 #    cam = cs.UsbCamera("webcam", 0)
     # cserver = cs.CameraServer() UNCOMMENT

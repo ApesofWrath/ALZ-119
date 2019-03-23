@@ -12,9 +12,9 @@ class GreenProfile:
         """initializes all values to presets or None if need to be set
         """
 
-        self.__hsv_threshold_hue = [64.74820143884892, 127.68273398291939]
-        self.__hsv_threshold_saturation = [52.74280575539568, 233.24232081911265]
-        self.__hsv_threshold_value = [194.91906474820144, 255.0]
+        self.__hsv_threshold_hue = [71.22302158273382, 143.13993174061434]
+        self.__hsv_threshold_saturation = [130.71043165467623, 255.0]
+        self.__hsv_threshold_value = [119.24460431654676, 255.0]
 
         self.hsv_threshold_output = None
 
@@ -27,13 +27,7 @@ class GreenProfile:
 
         self.cv_erode_output = None
 
-        self.__blur_input = self.cv_erode_output
-        self.__blur_type = BlurType.Median_Filter
-        self.__blur_radius = 17.117117117117118
-
-        self.blur_output = None
-
-        self.__find_contours_input = self.blur_output
+        self.__find_contours_input = self.cv_erode_output
         self.__find_contours_external_only = False
 
         self.find_contours_output = None
@@ -51,12 +45,8 @@ class GreenProfile:
         self.__cv_erode_src = self.hsv_threshold_output
         (self.cv_erode_output) = self.__cv_erode(self.__cv_erode_src, self.__cv_erode_kernel, self.__cv_erode_anchor, self.__cv_erode_iterations, self.__cv_erode_bordertype, self.__cv_erode_bordervalue)
 
-        # Step Blur0:
-        self.__blur_input = self.cv_erode_output
-        (self.blur_output) = self.__blur(self.__blur_input, self.__blur_type, self.__blur_radius)
-
         # Step Find_Contours0:
-        self.__find_contours_input = self.blur_output
+        self.__find_contours_input = self.cv_erode_output
         (self.find_contours_output) = self.__find_contours(self.__find_contours_input, self.__find_contours_external_only)
 
 
@@ -90,28 +80,6 @@ class GreenProfile:
                             borderType = border_type, borderValue = border_value)
 
     @staticmethod
-    def __blur(src, type, radius):
-        """Softens an image using one of several filters.
-        Args:
-            src: The source mat (numpy.ndarray).
-            type: The blurType to perform represented as an int.
-            radius: The radius for the blur as a float.
-        Returns:
-            A numpy.ndarray that has been blurred.
-        """
-        if(type is BlurType.Box_Blur):
-            ksize = int(2 * round(radius) + 1)
-            return cv2.blur(src, (ksize, ksize))
-        elif(type is BlurType.Gaussian_Blur):
-            ksize = int(6 * round(radius) + 1)
-            return cv2.GaussianBlur(src, (ksize, ksize), round(radius))
-        elif(type is BlurType.Median_Filter):
-            ksize = int(2 * round(radius) + 1)
-            return cv2.medianBlur(src, ksize)
-        else:
-            return cv2.bilateralFilter(src, -1, round(radius), round(radius))
-
-    @staticmethod
     def __find_contours(input, external_only):
         """Sets the values of pixels in a binary image to their distance to the nearest black pixel.
         Args:
@@ -125,8 +93,5 @@ class GreenProfile:
         else:
             mode = cv2.RETR_LIST
         method = cv2.CHAIN_APPROX_SIMPLE
-        im2, contours, hierarchy =cv2.findContours(input, mode=mode, method=method)
+        contours, hierarchy =cv2.findContours(input, mode=mode, method=method)
         return contours
-
-
-BlurType = Enum('BlurType', 'Box_Blur Gaussian_Blur Median_Filter Bilateral_Filter')
