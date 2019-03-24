@@ -7,9 +7,9 @@ import numpy as np
 import data_process
 import math
 import sys
-import cscore as cs
+# UNCOMMENT import cscore as cs
 
-file = open("graphing_data.txt", 'w') # Remove after testing
+# file = open("graphing_data.txt", 'w') # Remove after testing
 
 cos = 0
 zero_error = 0
@@ -159,8 +159,8 @@ def getOrientationAngle(left_dist, right_dist, offset_left, offset_right, dist_c
 
 
 try:
-    startNetworkTables()
-    table = NetworkTables.getTable('SmartDashboard')
+    # UNCOMMENT startNetworkTables()
+    # UNCOMMENT table = NetworkTables.getTable('SmartDashboard')
 
     counter = 0 # used to take intervals of exit angle data
     exit_angles = []
@@ -172,13 +172,13 @@ try:
     config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
     prof = pipe.start(config)
     s = prof.get_device().query_sensors()[1]
-    s.set_option(rs.option.exposure, 225)
+    s.set_option(rs.option.exposure, 220)
 
 #    cam = cs.UsbCamera("webcam", 0)
-    cserver = cs.CameraServer()
+    # UNCOMMENT cserver = cs.CameraServer()
 
-    src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
-    cserver.startAutomaticCapture(camera=src)
+    # UNCOMMENT src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
+    # UNCOMMENT cserver.startAutomaticCapture(camera=src)
     while True:
         frames = pipe.wait_for_frames()
         depth = frames.get_depth_frame()
@@ -230,9 +230,9 @@ try:
             dist = -1
             dp.angle = -1
 
-        table.putNumber('depth', dist)
-        table.putNumber('yaw', dp.angle)
-        table.putNumber('exit_angle', exit_angle)
+        # UNCOMMENT table.putNumber('depth', dist)
+        # UNCOMMENT table.putNumber('yaw', dp.angle)
+        # UNCOMMENT table.putNumber('exit_angle', exit_angle)
 
         # Uncomment if consistency of angles is an issue
                 # TODO account for -1 issue (repeating, corrupting data)
@@ -243,7 +243,7 @@ try:
                 #     counter = 0
                 #     exit_angles = []
 
-        src.putFrame(img)
+        # UNCOMMENT src.putFrame(img)
 
         print("\n")
 
@@ -254,7 +254,7 @@ try:
 except Exception as e:
     print(e)
 finally:
-    file.close()
+    # file.close()
     pipe.stop()
     cv2.destroyAllWindows()
     # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error

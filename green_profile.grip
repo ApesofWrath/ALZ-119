@@ -1,23 +1,27 @@
 <grip:Pipeline>
-  <sources/>
+  <sources>
+    <grip:Camera>
+      <property name="deviceNumber" value="2"/>
+    </grip:Camera>
+  </sources>
   <steps>
     <grip:Step name="HSV Threshold">
       <grip:Input step="0" socket="0"/>
       <grip:Input step="0" socket="1">
         <value>
-          <double>71.22302158273382</double>
-          <double>143.13993174061434</double>
+          <double>58.273381294964025</double>
+          <double>110.88737201365187</double>
         </value>
       </grip:Input>
       <grip:Input step="0" socket="2">
         <value>
-          <double>130.71043165467623</double>
+          <double>146.76258992805754</double>
           <double>255.0</double>
         </value>
       </grip:Input>
       <grip:Input step="0" socket="3">
         <value>
-          <double>119.24460431654676</double>
+          <double>84.84712230215827</double>
           <double>255.0</double>
         </value>
       </grip:Input>
@@ -43,15 +47,63 @@
       </grip:Input>
       <grip:Output step="2" socket="0" previewed="true"/>
     </grip:Step>
+    <grip:Step name="Filter Contours">
+      <grip:Input step="3" socket="0"/>
+      <grip:Input step="3" socket="1">
+        <value>240.0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="2">
+        <value>65.0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="3">
+        <value>5.0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="4">
+        <value>100.0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="5">
+        <value>10.0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="6">
+        <value>200.0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="7">
+        <value>
+          <double>72.84172661870502</double>
+          <int>100</int>
+        </value>
+      </grip:Input>
+      <grip:Input step="3" socket="8">
+        <value>1000000</value>
+      </grip:Input>
+      <grip:Input step="3" socket="9">
+        <value>4.0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="10">
+        <value>0.0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="11">
+        <value>1000</value>
+      </grip:Input>
+      <grip:Output step="3" socket="0" previewed="true"/>
+    </grip:Step>
   </steps>
   <connections>
     <grip:Connection>
-      <grip:Output step="1" socket="0" previewed="false"/>
-      <grip:Input step="2" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
       <grip:Output step="0" socket="0" previewed="false"/>
       <grip:Input step="1" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output step="2" socket="0" previewed="true"/>
+      <grip:Input step="3" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output source="0" socket="0" previewed="true"/>
+      <grip:Input step="0" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output step="1" socket="0" previewed="false"/>
+      <grip:Input step="2" socket="0"/>
     </grip:Connection>
   </connections>
   <settings>
