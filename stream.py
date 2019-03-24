@@ -52,6 +52,8 @@ def getValidDepthToPoint(x, y):
     max_distance = 2.0 #m
     dist_center = depth.get_distance(int(x), int(y))
 
+    y = WIDTH / 2
+
     if dist_center != 0.0 and dist_center <= max_distance:
         return dist_center, x
 
@@ -84,6 +86,10 @@ def getDistance(x, y, isLeft):
         return 0.0, -1
 
     dist_tape_pixels = dp.distance(dp.x1, dp.y1, dp.x2, dp.y2)
+
+    if dist_tape_pixels == 0:
+        return 0.0, -1
+
     dist_tape_meters = 0.2985 # distance between the mid points of the pieces of tape
     approx_conversion = dist_tape_meters / dist_tape_pixels # meters /pixel
 
