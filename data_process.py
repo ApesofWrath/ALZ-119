@@ -151,7 +151,8 @@ class DataProcess:
 		d1 = self.distance(p1[0], p1[1], p2[0], p2[1])
 		d2 = self.distance(p2[0], p2[1], p3[0], p3[1])
 
-		# figure out which side is the smaller side and
+		# aspect ratio should be y dist / x dist, not small / big
+		# testing on the table works well for noice
 
 		if d1 == 0:
 			d1 = 0.001
@@ -161,8 +162,6 @@ class DataProcess:
 		if d1 > d2:
 			return d2 / d1
 
-		if d2 == 0:
-			d2 = 0.001
 		return d1 / d2
 
 	# returns a bounded rectangle from contour_data[max_index] and draws it to @param: self.img
