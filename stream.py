@@ -1,5 +1,5 @@
 import pyrealsense2 as rs
-from networktables import NetworkTables
+# UNCOMMENT from networktables import NetworkTables
 import threading
 import grip
 import cv2
