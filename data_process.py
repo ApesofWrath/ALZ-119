@@ -17,7 +17,7 @@ class DataProcess:
 		self.img = None
 
 		# constants that depend on the specs of the vision tape
-		self.ASPECT_RATIO_ERROR = 0.25 # correlates to 0.5 inches total for room (needs tuning)
+		self.ASPECT_RATIO_ERROR = 0.1 # correlates to 0.5 inches total for room (needs tuning)
 		self.TAPE_ASPECT_RATIO = 0.36363 # small / big (2 inches / 5.5 inches)
 		self.MAX_HEIGHT_TAPE = 200 # the highest (lowest since top of screen) that the tape can reasonably be in pixels
 
@@ -68,18 +68,6 @@ class DataProcess:
 
 		mid_x = (b_x + a_x) / 2
 		mid_y = (b_y + a_y) / 2
-
-		# print("B: " + str(B))
-		# print("A: " + str(A))
-		# print("distA: " + str(distA))
-		# print("distB: " + str(distB))
-		# print("A out: " + str(Aout))
-		# print("B out: " + str(Bout))
-		#
-		# print('b_x: ' + str(b_x))
-		# print('b_y: ' + str(b_y))
-		# print('a_x: ' + str(a_x))
-		# print('a_y: ' + str(a_y))
 
 		return (mid_x ** 2 + mid_y ** 2) ** (0.5) # beacuse 0,0 is camera
 
@@ -155,7 +143,7 @@ class DataProcess:
 	def distance(self, x1, y1, x2, y2):
 		return math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
 
-	# Aspect ratio is small/big (should be 2 inches / 5.5 inches if perfect)
+	# Aspect ratio is x width (small) / y height (big) (should be 2 inches / 5.5 inches if perfect)
 	def getAspectRatio(self, box):
 		p1, p2, p3 = box[0], box[1], box[2]
 
@@ -164,9 +152,13 @@ class DataProcess:
 		d2 = self.distance(p2[0], p2[1], p3[0], p3[1])
 
 		# figure out which side is the smaller side and
+
+		if d1 == 0:
+			d1 = 0.001
+		if d2 == 0:
+			d2 = 0.001
+
 		if d1 > d2:
-			if d1 == 0:
-				d1 = 0.001
 			return d2 / d1
 
 		if d2 == 0:
@@ -266,13 +258,16 @@ class DataProcess:
 
 	def filterContours(self, contour_data):
 		rects = self.convertToRects(contour_data)
-		for i in range(0, len(rects)):
-				if abs(self.getAspectRatio(rects[i]) - self.TAPE_ASPECT_RATIO) > self.ASPECT_RATIO_ERROR or \
-				 rects[i][0][1] < self.MAX_HEIGHT_TAPE:
-					del rects[i]
-					del contour_data[i]
-					i -= 1
-
+		# print("size contour_data: " + str(len(contour_data)))
+		i = 0
+		for j in range(0, len(rects)): # can't be j beacuse python is stupid
+			if abs(self.getAspectRatio(rects[i]) - self.TAPE_ASPECT_RATIO) > self.ASPECT_RATIO_ERROR or \
+			rects[i][0][1] < self.MAX_HEIGHT_TAPE: #
+				contour_data.pop(i)
+				rects.pop(i)
+				i -= 1
+			i += 1
+		print(len(contour_data))
 		return contour_data
 
 	def isTapeDetected(self):
@@ -289,7 +284,6 @@ class DataProcess:
 		rect2 = None
 
 		contour_data = self.filterContours(contour_data)
-
 
 		if contour_data is not None:
 			# print("about to draw rect")
