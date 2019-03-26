@@ -143,7 +143,7 @@ class DataProcess:
 	def distance(self, x1, y1, x2, y2):
 		return math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
 
-	# Aspect ratio is x width (small) / y height (big) (should be 2 inches / 5.5 inches if perfect)
+	# Aspect ratio is horizontal side / vertical side (should be 2 inches / 5.5 inches if perfect)
 	def getAspectRatio(self, box):
 		p1, p2, p3 = box[0], box[1], box[2]
 
@@ -151,18 +151,17 @@ class DataProcess:
 		d1 = self.distance(p1[0], p1[1], p2[0], p2[1])
 		d2 = self.distance(p2[0], p2[1], p3[0], p3[1])
 
-		# aspect ratio should be y dist / x dist, not small / big
-		# testing on the table works well for noice
-
 		if d1 == 0:
 			d1 = 0.001
 		if d2 == 0:
 			d2 = 0.001
 
-		if d1 > d2:
+		# horizontal side / vertical side
+		if p1[1] - p2[1] > p2[1] - p3[1]: # if the y comp of dist1 is greater than the y comp of dist2
 			return d2 / d1
 
 		return d1 / d2
+		
 
 	# returns a bounded rectangle from contour_data[max_index] and draws it to @param: self.img
 	def generateRect(self, contour_data, max_index):
