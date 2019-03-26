@@ -89,6 +89,8 @@ try:
 
         # UNCOMMENT src.putFrame(img)
 
+        cv2.imshow("668 Vision", img)
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("leave")
             break
