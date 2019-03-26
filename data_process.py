@@ -267,7 +267,7 @@ class DataProcess:
 	def filterContours(self, contour_data):
 		rects = self.convertToRects(contour_data)
 		for i in range(0, len(rects)):
-				if abs(self.getAspectRatio(rects[i]) - self.TAPE_ASPECT_RATIO) > self.ASPECT_RATIO_ERROR or \ # check aspect ratio
+				if abs(self.getAspectRatio(rects[i]) - self.TAPE_ASPECT_RATIO) > self.ASPECT_RATIO_ERROR or \
 				 rects[i][0][1] < self.MAX_HEIGHT_TAPE:
 					del rects[i]
 					del contour_data[i]
@@ -275,6 +275,8 @@ class DataProcess:
 
 		return contour_data
 
+	def isTapeDetected(self):
+		return len(self.pipe.find_contours_output) != -1
 
 	def update(self, im):
 		self.pipe.process(im)
