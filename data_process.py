@@ -19,6 +19,7 @@ class DataProcess:
 		# constants that depend on the specs of the vision tape
 		self.ASPECT_RATIO_ERROR = 0.25 # correlates to 0.5 inches total for room (needs tuning)
 		self.TAPE_ASPECT_RATIO = 0.36363 # small / big (2 inches / 5.5 inches)
+		self.MAX_HEIGHT_TAPE = 200 # the highest (lowest since top of screen) that the tape can reasonably be in pixels
 
 		# eyes on the prize point
 		self.cx = 0.0
@@ -263,8 +264,17 @@ class DataProcess:
 
 		return contour_data
 
-	def isTapeDetected(self):
-		return len(self.pipe.find_contours_output) != -1
+	def filterContours(self, contour_data):
+		rects = self.convertToRects(contour_data)
+		for i in range(0, len(rects)):
+				if abs(self.getAspectRatio(rects[i]) - self.TAPE_ASPECT_RATIO) > self.ASPECT_RATIO_ERROR or \ # check aspect ratio
+				 rects[i][0][1] < self.MAX_HEIGHT_TAPE:
+					del rects[i]
+					del contour_data[i]
+					i -= 1
+
+		return contour_data
+
 
 	def update(self, im):
 		self.pipe.process(im)
@@ -275,6 +285,10 @@ class DataProcess:
 		# future boxes for the bounded rectangles
 		rect1 = None
 		rect2 = None
+
+		contour_data = self.filterContours(contour_data)
+
+
 		if contour_data is not None:
 			# print("about to draw rect")
 			if len(contour_data) > 2:
