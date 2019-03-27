@@ -17,7 +17,7 @@ class DataProcess:
 		self.img = None
 
 		# constants that depend on the specs of the vision tape
-		self.ASPECT_RATIO_ERROR = 0.1 # correlates to 0.5 inches total for room (needs tuning)
+		self.ASPECT_RATIO_ERROR = 0.15 # correlates to 0.5 inches total for room (needs tuning)
 		self.TAPE_ASPECT_RATIO = 0.36363 # small / big (2 inches / 5.5 inches)
 		self.MAX_HEIGHT_TAPE = 200 # the highest (lowest since top of screen) that the tape can reasonably be in pixels
 
