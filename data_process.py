@@ -245,13 +245,37 @@ class DataProcess:
 			rects.append(self.generateRect(contour_data, i))
 		return rects
 
+	# sort by biggest first, then by distance to center, always verify pairs with slopes
 	def getGoalRectangles(self, contour_data):
-		# index1, index2 = len(contour_data) / 2, len(contour_data) / 2 + 1
-		# contour_data = [contour_data[index1], contour_data[index2]]
-		# get the centers of the
 		rects = self.convertToRects(contour_data)
 
-		# print(contour_data)
+		# the biggest ones
+		areas = [cv2.contourArea(c) for c in contour_data]
+		original_areas = areas.copy()
+		manipulating_contour_data = contour_data.copy()
+
+		index1 = numpy.argmax(areas)
+		# print("index1 obtained: " + str(index1))
+		next = self.nextLargestArea(areas, manipulating_contour_data, index1)
+		index2 = original_areas.index(areas[next])
+		# print("index2 obtained: " + str(index2))
+		while len(areas) > 1 and len(contour_data) > 1:
+			# print("recs: " + str(len(rects)))
+			if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
+				# print("going to return")
+				# print(len(contour_data))
+				contour_data = [contour_data[index1], contour_data[index2]]
+				# print("retuned")
+				return contour_data
+
+			print("len areas: " + str(len(areas)))
+			next = self.nextLargestArea(areas, manipulating_contour_data, next)
+			index2 = original_areas.index(areas[next])
+			# print("next: " + str(next))
+			# print("index2: " + str(index2))
+
+		print("entering center check")
+		# the clossest to the center
 		distance_to_center = []
 		for rect in rects:
 			x_av = 0.0
@@ -261,9 +285,9 @@ class DataProcess:
 		# print("ALL: " + str(distance_to_center))
 
 		distance_to_center_sorted = sorted(distance_to_center)
-		# print("SORTED: " + str(centers_sorted))
+
 		index1, index2 = distance_to_center.index(distance_to_center_sorted[0]), distance_to_center.index(distance_to_center_sorted[1])
-		# print("PICKED: " + str(index1) + ", " + str(index2))
+
 		contour_data = [contour_data[index1], contour_data[index2]]
 
 		return contour_data
@@ -290,7 +314,6 @@ class DataProcess:
 		self.img = im
 		contour_data = self.pipe.find_contours_output
 
-		# print(contour_data)
 		# future boxes for the bounded rectangles
 		rect1 = None
 		rect2 = None
