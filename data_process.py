@@ -262,7 +262,6 @@ class DataProcess:
 		while len(areas) > 1 and len(contour_data) > 1:
 			if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
 				contour_data = [contour_data[index1], contour_data[index2]]
-
 				return contour_data
 
 			next = self.nextLargestArea(areas, manipulating_contour_data, next)
