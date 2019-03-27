@@ -255,26 +255,19 @@ class DataProcess:
 		manipulating_contour_data = contour_data.copy()
 
 		index1 = numpy.argmax(areas)
-		# print("index1 obtained: " + str(index1))
+
 		next = self.nextLargestArea(areas, manipulating_contour_data, index1)
 		index2 = original_areas.index(areas[next])
-		# print("index2 obtained: " + str(index2))
+
 		while len(areas) > 1 and len(contour_data) > 1:
-			# print("recs: " + str(len(rects)))
 			if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
-				# print("going to return")
-				# print(len(contour_data))
 				contour_data = [contour_data[index1], contour_data[index2]]
-				# print("retuned")
+
 				return contour_data
 
-			print("len areas: " + str(len(areas)))
 			next = self.nextLargestArea(areas, manipulating_contour_data, next)
 			index2 = original_areas.index(areas[next])
-			# print("next: " + str(next))
-			# print("index2: " + str(index2))
 
-		print("entering center check")
 		# the clossest to the center
 		distance_to_center = []
 		for rect in rects:
