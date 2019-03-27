@@ -116,11 +116,11 @@ class DataProcess:
 		return totalx / 4.0, totaly / 4.0
 
 	def getRect1(self):
-		print(self.rect1)
+		# print(self.rect1)
 		return self.rect1
 
 	def getRect2(self):
-		print(self.rect2)
+		# print(self.rect2)
 		return self.rect2
 
 
@@ -161,7 +161,7 @@ class DataProcess:
 			return d2 / d1
 
 		return d1 / d2
-		
+
 
 	# returns a bounded rectangle from contour_data[max_index] and draws it to @param: self.img
 	def generateRect(self, contour_data, max_index):
@@ -180,6 +180,26 @@ class DataProcess:
 
 			return max_index
 
+	def getSlope(self, box):
+		p1, p2, p3 = box[0], box[1], box[2]
+		d1 = self.distance(p1[0], p1[1], p2[0], p2[1])
+		d2 = self.distance(p2[0], p2[1], p3[0], p3[1])
+
+		# TODO: simplify to go off of negative vs. positive angles instead of slope (need to know which is above/below to get sign right?)
+		slope = 0.0
+
+		# TODO: fix the /0 check so that it works with both sets of points, not just 1 & 2
+		if p2[0] == p1[0] or p3[0] == p2[0]: # fix divide by zero error
+			slope = (float(p2[1]) - p1[1]) / 0.01
+		elif d1 > d2:
+			slope = (float(p2[1]) - p1[1]) / (float(p2[0]) - p1[0])
+		else:
+			slope = (float(p3[1]) - p2[1]) / (float(p3[0]) - p2[0])
+
+		slope *= -1 # reflect across the x axis to convert to more sensical coordinate system (form upper left coordinates)
+
+		return slope
+
 	def oneVisionTapeDetected(self, box):
 		p1, p2, p3 = box[0], box[1], box[2]
 		cx, cy = self.getReferencePoint(box)
@@ -187,7 +207,6 @@ class DataProcess:
 		# Can do this because points are consecutive in cw or ccw order
 		d1 = self.distance(p1[0], p1[1], p2[0], p2[1])
 		d2 = self.distance(p2[0], p2[1], p3[0], p3[1])
-		#print("d1: " + str(d1) + " d2: " + str(d2))
 
 		# TODO: simplify to go off of negative vs. positive angles instead of slope (need to know which is above/below to get sign right?)
 		slope = 0.0
@@ -197,20 +216,15 @@ class DataProcess:
 		offset_y = 0.0
 
 		distance_pixels = min(d1, d2)
+		slope = self.getSlope(box)
 
 		# TODO: fix the /0 check so that it works with both sets of points, not just 1 & 2
 		if p2[0] == p1[0] or p3[0] == p2[0]: # fix divide by zero error
-			slope = (float(p2[1]) - p1[1]) / 0.01
 			angle = 0
 		elif d1 > d2:
-			slope = (float(p2[1]) - p1[1]) / (float(p2[0]) - p1[0])
 			angle = float(math.pi / 2 - math.atan(float(abs(p2[1] - p1[1])) / abs(p2[0] - p1[0])))
 		else:
-			slope = (float(p3[1]) - p2[1]) / (float(p3[0]) - p2[0])
 			angle = float(math.pi / 2 - math.atan(float(abs(p3[1] - p2[1])) / abs(p3[0] - p2[0])))
-
-
-		slope *= -1 # reflect about the x axis to convert to more sensical coordinate system (form upper left coordinates)
 
 		EOP_default = (4 + math.cos(14.5)) * distance_pixels / 2
 
@@ -265,7 +279,7 @@ class DataProcess:
 				rects.pop(i)
 				i -= 1
 			i += 1
-		print(len(contour_data))
+		# print(len(contour_data))
 		return contour_data
 
 	def isTapeDetected(self):
