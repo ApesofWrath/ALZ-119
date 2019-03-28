@@ -251,6 +251,18 @@ class DataProcess:
 			return rect1, rect2
 		return rect2, rect1
 
+	def averageDeviation(self, list):
+		av = float(sum(list)) / len(list)
+		dist_mean = 0.0
+		for i in range(0, len(list)):
+			print("list[i]: " + str(list[i]))
+			print("list - av: " + str(list[i] - av))
+			print("average: " + str(av))
+			dist_mean += abs(list[i] - av)
+			print("dist mean: " + str(dist_mean))
+		return dist_mean / len(list)
+
+
 	# sort by biggest first, then by distance to center, always verify pairs with slopes
 	def getGoalRectangles(self, contour_data):
 		rects = self.convertToRects(contour_data)
@@ -260,20 +272,21 @@ class DataProcess:
 		original_areas = areas.copy()
 		manipulating_contour_data = contour_data.copy()
 
-		index1 = numpy.argmax(areas)
+		if self.averageDeviation(areas) < 60.0: # may ned to change to dompaing individual 2 selected tapes with next 2 in list
+			index1 = numpy.argmax(areas)
 
-		next = self.nextLargestArea(areas, manipulating_contour_data, index1)
-		index2 = original_areas.index(areas[next])
-
-		while len(areas) > 1 and len(contour_data) > 1:
-			if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
-				left, right = self.leftRight(rects[index1], rects[index2])
-				if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
-					contour_data = [contour_data[index1], contour_data[index2]]
-					return contour_data
-
-			next = self.nextLargestArea(areas, manipulating_contour_data, next)
+			next = self.nextLargestArea(areas, manipulating_contour_data, index1)
 			index2 = original_areas.index(areas[next])
+
+			while len(areas) > 1 and len(contour_data) > 1:
+				if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
+					left, right = self.leftRight(rects[index1], rects[index2])
+					if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
+						contour_data = [contour_data[index1], contour_data[index2]]
+						return contour_data
+
+				next = self.nextLargestArea(areas, manipulating_contour_data, next)
+				index2 = original_areas.index(areas[next])
 
 		# the clossest to the center
 		distance_to_center = []
