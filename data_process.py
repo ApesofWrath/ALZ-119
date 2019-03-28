@@ -256,11 +256,8 @@ class DataProcess:
 		av = float(sum(list)) / len(list)
 		dist_mean = 0.0
 		for i in range(0, len(list)):
-			print("list[i]: " + str(list[i]))
-			print("list - av: " + str(list[i] - av))
-			print("average: " + str(av))
 			dist_mean += abs(list[i] - av)
-			print("dist mean: " + str(dist_mean))
+			
 		return dist_mean / len(list)
 
 
@@ -306,7 +303,7 @@ class DataProcess:
 				left, right = self.leftRight(rects[index1], rects[index2])
 				if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
 					index2 = distance_to_center.index(distance_to_center_sorted[i])
-					
+
 		if index2 is None:
 			index2 = distance_to_center.index(distance_to_center_sorted[1])
 
