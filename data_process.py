@@ -245,6 +245,12 @@ class DataProcess:
 			rects.append(self.generateRect(contour_data, i))
 		return rects
 
+	#returns the leftmost rect then the right
+	def leftRight(self, rect1, rect2):
+		if rect1[0][0] < rect2[0][0]:
+			return rect1, rect2
+		return rect2, rect1
+
 	# sort by biggest first, then by distance to center, always verify pairs with slopes
 	def getGoalRectangles(self, contour_data):
 		rects = self.convertToRects(contour_data)
@@ -261,8 +267,10 @@ class DataProcess:
 
 		while len(areas) > 1 and len(contour_data) > 1:
 			if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
-				contour_data = [contour_data[index1], contour_data[index2]]
-				return contour_data
+				left, right = self.leftRight(rects[index1], rects[index2])
+				if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
+					contour_data = [contour_data[index1], contour_data[index2]]
+					return contour_data
 
 			next = self.nextLargestArea(areas, manipulating_contour_data, next)
 			index2 = original_areas.index(areas[next])
