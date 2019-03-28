@@ -257,7 +257,7 @@ class DataProcess:
 		dist_mean = 0.0
 		for i in range(0, len(list)):
 			dist_mean += abs(list[i] - av)
-			
+
 		return dist_mean / len(list)
 
 
@@ -267,8 +267,8 @@ class DataProcess:
 
 		# the biggest ones
 		areas = [cv2.contourArea(c) for c in contour_data]
-		original_areas = areas.copy()
-		manipulating_contour_data = contour_data.copy()
+		original_areas = areas[:]
+		manipulating_contour_data = contour_data[:]
 
 		if self.averageDeviation(areas) > self.AV_DIST_MEAN_ERROR or len(contour_data) < 4: # may ned to change to dompaing individual 2 selected tapes with next 2 in list
 			index1 = numpy.argmax(areas)
