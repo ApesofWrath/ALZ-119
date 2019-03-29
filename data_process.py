@@ -19,7 +19,7 @@ class DataProcess:
 		# constants that depend on the specs of the vision tape
 		self.ASPECT_RATIO_ERROR = 0.15 # correlates to 0.5 inches total for room (needs tuning)
 		self.TAPE_ASPECT_RATIO = 0.36363 # small / big (2 inches / 5.5 inches)
-		self.MAX_HEIGHT_TAPE = 200 # the highest (lowest since top of screen) that the tape can reasonably be in pixels
+		self.MAX_HEIGHT_TAPE = 125 # the highest (lowest since top of screen) that the tape can reasonably be in pixels
 		self.AV_DIST_MEAN_ERROR = 100.0 # used in distinguishing between cargo bay and rocket, similar sizes on cargo bay, more variance in detected tapes on cargo bay
 
 		# eyes on the prize point
