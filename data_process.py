@@ -20,7 +20,7 @@ class DataProcess:
 		self.ASPECT_RATIO_ERROR = 0.15 # correlates to 0.5 inches total for room (needs tuning)
 		self.TAPE_ASPECT_RATIO = 0.36363 # small / big (2 inches / 5.5 inches)
 		self.MAX_HEIGHT_TAPE = 200 # the highest (lowest since top of screen) that the tape can reasonably be in pixels
-		self.AV_DIST_MEAN_ERROR = 60.0 # used in distinguishing between cargo bay and rocket, similar sizes on cargo bay, more variance in detected tapes on cargo bay
+		self.AV_DIST_MEAN_ERROR = 100.0 # used in distinguishing between cargo bay and rocket, similar sizes on cargo bay, more variance in detected tapes on cargo bay
 
 		# eyes on the prize point
 		self.cx = 0.0
@@ -270,6 +270,7 @@ class DataProcess:
 		original_areas = areas[:]
 		manipulating_contour_data = contour_data[:]
 
+		print("av dev areas: " + str(self.averageDeviation(areas)))
 		if self.averageDeviation(areas) > self.AV_DIST_MEAN_ERROR or len(contour_data) < 4: # may ned to change to dompaing individual 2 selected tapes with next 2 in list
 			index1 = numpy.argmax(areas)
 			next = self.nextLargestArea(areas, manipulating_contour_data, index1)
@@ -279,37 +280,44 @@ class DataProcess:
 				if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
 					left, right = self.leftRight(rects[index1], rects[index2])
 					if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
+						# cv2.drawContours(self.img,[left], 0, (100, 10, 50), 10)
+						# cv2.drawContours(self.img,[right], 0, (100, 10, 50), 10)
 						contour_data = [contour_data[index1], contour_data[index2]]
+						print("BY DIFF AREAS")
 						return contour_data
 
 				next = self.nextLargestArea(areas, manipulating_contour_data, next)
+
 				index2 = original_areas.index(areas[next])
 
 		# the clossest to the center
+		print("DIST CENTER")
 		distance_to_center = []
 		for rect in rects:
 			x_av = 0.0
 			for i in range (0, len(rect)):
 				x_av += rect[i][0]
 			distance_to_center.append(abs(x_av / 4 - self.WIDTH / 2))
-		# print("ALL: " + str(distance_to_center))
 
 		distance_to_center_sorted = sorted(distance_to_center)
-		index1 = distance_to_center.index(distance_to_center_sorted[0]),
-		index2 = None
+		index1 = distance_to_center.index(distance_to_center_sorted[0])
+		index2 = distance_to_center.index(distance_to_center_sorted[1])
 
 		for i in range(1, len(distance_to_center_sorted) - 1):
 			if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
 				left, right = self.leftRight(rects[index1], rects[index2])
+				# print("left slope: " + str(self.getSlope(left)))
+				# print("right slope: " + str(self.getSlope(right)))
 				if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
+					# cv2.drawContours(self.img,[left], 0, (100, 10, 50), 10)
+					# cv2.drawContours(self.img,[right], 0, (100, 10, 50), 10)
 					index2 = distance_to_center.index(distance_to_center_sorted[i])
+					contour_data = [contour_data[index1], contour_data[index2]]
+					return contour_data
 
-		if index2 is None:
-			index2 = distance_to_center.index(distance_to_center_sorted[1])
+		# contour_data = [contour_data[index1], contour_data[index2]]
 
-		contour_data = [contour_data[index1], contour_data[index2]]
-
-		return contour_data
+		return []
 
 	def filterContours(self, contour_data):
 		rects = self.convertToRects(contour_data)
