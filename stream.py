@@ -57,7 +57,7 @@ try:
     pipe = rs.pipeline()
     config = rs.config()
     config.enable_stream(rs.stream.color, int(WIDTH), int(HEIGHT), rs.format.bgr8, 60) #numbers that work: 6, 15
-    config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
+    # config.enable_stream(rs.stream.depth, int(WIDTH), int(HEIGHT), rs.format.z16, 60)
     prof = pipe.start(config)
     s = prof.get_device().query_sensors()[1]
     s.set_option(rs.option.exposure, 220)
@@ -69,9 +69,9 @@ try:
     # UNCOMMENT cserver.startAutomaticCapture(camera=src)
     while True:
         frames = pipe.wait_for_frames()
-        depth = frames.get_depth_frame()
+        # depth = frames.get_depth_frame()
         color = frames.get_color_frame()
-        if not (color and depth):
+        if not (color):
             continue
 
         img = np.asarray(color.get_data())
