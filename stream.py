@@ -7,9 +7,12 @@ import numpy as np
 import data_process
 import math
 import sys
+import os
 # UNCOMMENT import cscore as cs
 
 # file = open("graphing_data.txt", 'w') # Remove after testing
+
+PATH = "home/Desktop/vision/ALZ-119-latest/stream.py"
 
 cos = 0
 zero_error = 0
@@ -104,4 +107,5 @@ finally:
     # Method calls agaisnt librealsense objects may throw exceptions of type pylibrs.error
     # print("pylibrs.error was thrown when calling %s(%s):\n" % (e.get_failed_function(), e.get_failed_args()))
     # print("    %s\n", e.what())
+    os.system("python3 " + str(PATH))
     exit(1)
