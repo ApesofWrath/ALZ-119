@@ -192,6 +192,7 @@ class DataProcess:
 		# TODO: fix the /0 check so that it works with both sets of points, not just 1 & 2
 		if p2[0] == p1[0] or p3[0] == p2[0]: # fix divide by zero error
 			slope = (float(p2[1]) - p1[1]) / 0.01
+			print("FIX DIVIDE BY ZERO ERROR")
 		elif d1 > d2:
 			slope = (float(p2[1]) - p1[1]) / (float(p2[0]) - p1[0])
 		else:
@@ -313,11 +314,16 @@ class DataProcess:
 
 		# print("length rects: " + str(len(rects)))
 
-		for i in range(1, len(distance_to_center_sorted) - 1):
+		for i in range(1, len(distance_to_center_sorted)):
+			left, right = self.leftRight(rects[index1], rects[index2])
+			print("slope1: " + str(self.getSlope(left)))
+			print("slope2: " + str(self.getSlope(right)))
+			print("\n")
 			if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
 				left, right = self.leftRight(rects[index1], rects[index2])
 				# print("left slope: " + str(self.getSlope(left)))
 				# print("right slope: " + str(self.getSlope(right)))
+				# print("\n")
 				if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
 
 					# cv2.drawContours(self.img,[left], 0, (100, 10, 50), 10)
