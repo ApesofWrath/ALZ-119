@@ -280,8 +280,12 @@ class DataProcess:
 				if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
 					left, right = self.leftRight(rects[index1], rects[index2])
 					if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
+
 						# cv2.drawContours(self.img,[left], 0, (100, 10, 50), 10)
 						# cv2.drawContours(self.img,[right], 0, (100, 10, 50), 10)
+						# print("left slope: " + str(self.getSlope(left)))
+						# print("right slope: " + str(self.getSlope(right)))
+
 						contour_data = [contour_data[index1], contour_data[index2]]
 						print("BY DIFF AREAS")
 						return contour_data
@@ -291,7 +295,6 @@ class DataProcess:
 				index2 = original_areas.index(areas[next])
 
 		# the clossest to the center
-		print("DIST CENTER")
 		distance_to_center = []
 		for rect in rects:
 			x_av = 0.0
@@ -306,26 +309,29 @@ class DataProcess:
 		for i in range(1, len(distance_to_center_sorted) - 1):
 			if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
 				left, right = self.leftRight(rects[index1], rects[index2])
-				# print("left slope: " + str(self.getSlope(left)))
-				# print("right slope: " + str(self.getSlope(right)))
 				if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
+
 					# cv2.drawContours(self.img,[left], 0, (100, 10, 50), 10)
 					# cv2.drawContours(self.img,[right], 0, (100, 10, 50), 10)
+					# print("left slope: " + str(self.getSlope(left)))
+					# print("right slope: " + str(self.getSlope(right)))
+
 					index2 = distance_to_center.index(distance_to_center_sorted[i])
 					contour_data = [contour_data[index1], contour_data[index2]]
+					print("DIST CENTER")
 					return contour_data
 
 		# contour_data = [contour_data[index1], contour_data[index2]]
-
+		print("NOTHING")
 		return []
 
 	def filterContours(self, contour_data):
 		rects = self.convertToRects(contour_data)
 		# print("size contour_data: " + str(len(contour_data)))
 		i = 0
-		for j in range(0, len(rects)): # can't be j beacuse python is stupid
+		for j in range(0, len(rects)): # can't be j beacuse python is stupid and i is set to a value instead of incremented
 			if abs(self.getAspectRatio(rects[i]) - self.TAPE_ASPECT_RATIO) > self.ASPECT_RATIO_ERROR or \
-			rects[i][0][1] < self.MAX_HEIGHT_TAPE: #
+			rects[i][0][1] < self.MAX_HEIGHT_TAPE: # not above certain part of the screen
 				contour_data.pop(i)
 				rects.pop(i)
 				i -= 1
@@ -348,7 +354,6 @@ class DataProcess:
 		contour_data = self.filterContours(contour_data)
 
 		if contour_data is not None:
-			# print("about to draw rect")
 			if len(contour_data) > 2:
 				contour_data = self.getGoalRectangles(contour_data)
 
@@ -380,8 +385,6 @@ class DataProcess:
 					# one big blob of both of the vision targets,
 					# get the eyes on the prize point for it instead of centers of other things
 					self.angle = self.calcAngles(rect1, rect1, 0, 0)
-			# print("cx: " + str(self.cx) + " cy: " + str(self.cy) + "\n")
-			# print("appx angle: " + str(self.approximateAngle(self.cx, self.cy)))
 		self.rect1 = rect1
 		self.rect2 = rect2
 		# cv2.imshow("CONTOUR",  self.img)
