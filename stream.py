@@ -1,5 +1,5 @@
 import pyrealsense2 as rs
-# UNCOMMENT from networktables import NetworkTables
+from networktables import NetworkTables
 import threading
 import grip
 import cv2
@@ -8,7 +8,7 @@ import data_process
 import math
 import sys
 import os
-# UNCOMMENT import cscore as cs
+import cscore as cs
 
 # file = open("graphing_data.txt", 'w') # Remove after testing
 
@@ -52,8 +52,8 @@ def startNetworkTables():
 
 
 try:
-    # UNCOMMENT startNetworkTables()
-    # UNCOMMENT table = NetworkTables.getTable('SmartDashboard')
+    startNetworkTables()
+    table = NetworkTables.getTable('SmartDashboard')
 
     counter = 0 # used to take intervals of exit angle data
 
@@ -66,10 +66,10 @@ try:
     s.set_option(rs.option.exposure, 220)
 
 #    cam = cs.UsbCamera("webcam", 0)
-    # UNCOMMENT cserver = cs.CameraServer()
+    cserver = cs.CameraServer()
 
-    # UNCOMMENT src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
-    # UNCOMMENT cserver.startAutomaticCapture(camera=src)
+    src = cs.CvSource("server", cs.VideoMode.PixelFormat.kMJPEG, WIDTH, HEIGHT, 70)
+    cserver.startAutomaticCapture(camera=src)
     while True:
         frames = pipe.wait_for_frames()
         # depth = frames.get_depth_frame()
@@ -86,11 +86,11 @@ try:
         if not dp.isTapeDetected:
             dp.angle = 0.0
 
-        # UNCOMMENT table.putNumber('depth', dist)
-        # UNCOMMENT table.putNumber('yaw', dp.angle)
-        # UNCOMMENT table.putNumber('exit_angle', exit_angle)
+        table.putNumber('depth', dist)
+        table.putNumber('yaw', dp.angle)
+        table.putNumber('exit_angle', exit_angle)
 
-        # UNCOMMENT src.putFrame(img)
+        src.putFrame(img)
 
         cv2.imshow("668 Vision", img)
 
