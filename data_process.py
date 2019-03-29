@@ -17,10 +17,10 @@ class DataProcess:
 		self.img = None
 
 		# constants that depend on the specs of the vision tape
-		self.ASPECT_RATIO_ERROR = 0.15 # correlates to 0.5 inches total for room (needs tuning)
+		self.ASPECT_RATIO_ERROR = 0.13 # correlates to 0.5 inches total for room (needs tuning)
 		self.TAPE_ASPECT_RATIO = 0.36363 # small / big (2 inches / 5.5 inches)
 		self.MAX_HEIGHT_TAPE = 125 # the highest (lowest since top of screen) that the tape can reasonably be in pixels
-		self.AV_DIST_MEAN_ERROR = 100.0 # used in distinguishing between cargo bay and rocket, similar sizes on cargo bay, more variance in detected tapes on cargo bay
+		self.AV_DIST_MEAN_ERROR = 500.0 # used in distinguishing between cargo bay and rocket, similar sizes on cargo bay, more variance in detected tapes on cargo bay
 
 		# eyes on the prize point
 		self.cx = 0.0
@@ -279,6 +279,10 @@ class DataProcess:
 			while len(areas) > 1 and len(contour_data) > 1:
 				if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
 					left, right = self.leftRight(rects[index1], rects[index2])
+					print("left slope: " + str(self.getSlope(left)))
+					print("right slope: " + str(self.getSlope(right)))
+					cv2.drawContours(self.img,[left], 0, (100, 10, 50), 10)
+					cv2.drawContours(self.img,[right], 0, (100, 10, 50), 10)
 					if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
 
 						# cv2.drawContours(self.img,[left], 0, (100, 10, 50), 10)
@@ -303,12 +307,17 @@ class DataProcess:
 			distance_to_center.append(abs(x_av / 4 - self.WIDTH / 2))
 
 		distance_to_center_sorted = sorted(distance_to_center)
+		# print("DIST ARRAY: " + str(distance_to_center_sorted))
 		index1 = distance_to_center.index(distance_to_center_sorted[0])
 		index2 = distance_to_center.index(distance_to_center_sorted[1])
+
+		# print("length rects: " + str(len(rects)))
 
 		for i in range(1, len(distance_to_center_sorted) - 1):
 			if self.getSlope(rects[index1]) * self.getSlope(rects[index2]) < 0: # if they have different signs
 				left, right = self.leftRight(rects[index1], rects[index2])
+				# print("left slope: " + str(self.getSlope(left)))
+				# print("right slope: " + str(self.getSlope(right)))
 				if self.getSlope(left) > 0 and self.getSlope(right) < 0: # both are facing inwards
 
 					# cv2.drawContours(self.img,[left], 0, (100, 10, 50), 10)
@@ -316,11 +325,10 @@ class DataProcess:
 					# print("left slope: " + str(self.getSlope(left)))
 					# print("right slope: " + str(self.getSlope(right)))
 
-					index2 = distance_to_center.index(distance_to_center_sorted[i])
 					contour_data = [contour_data[index1], contour_data[index2]]
 					print("DIST CENTER")
 					return contour_data
-
+			index2 = distance_to_center.index(distance_to_center_sorted[i])
 		# contour_data = [contour_data[index1], contour_data[index2]]
 		print("NOTHING")
 		return []
@@ -330,13 +338,15 @@ class DataProcess:
 		# print("size contour_data: " + str(len(contour_data)))
 		i = 0
 		for j in range(0, len(rects)): # can't be j beacuse python is stupid and i is set to a value instead of incremented
+			# print("ASPECT ERROR: " + str(abs(self.getAspectRatio(rects[i]) - self.TAPE_ASPECT_RATIO) > self.ASPECT_RATIO_ERROR))
+			# print("HEIGHT ERROR: " + str(rects[i][0][1] < self.MAX_HEIGHT_TAPE) + "\n")
 			if abs(self.getAspectRatio(rects[i]) - self.TAPE_ASPECT_RATIO) > self.ASPECT_RATIO_ERROR or \
 			rects[i][0][1] < self.MAX_HEIGHT_TAPE: # not above certain part of the screen
 				contour_data.pop(i)
 				rects.pop(i)
 				i -= 1
 			i += 1
-		# print(len(contour_data))
+		# print("length contour data: " + str(len(contour_data)))
 		return contour_data
 
 	def isTapeDetected(self):
